@@ -27,6 +27,7 @@
 
 // module.exports = upload;
 
+// ===================================================================================================
 
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -40,7 +41,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Keep your extension-based filter
+// File filter (PDF / DOC / DOCX only)
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /pdf|doc|docx/;
   const extname = allowedTypes.test(
@@ -57,13 +58,37 @@ const fileFilter = (req, file, cb) => {
 // Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
-    folder: "resumes",
-    resource_type: "auto",
-    public_id: Date.now() + "-" + file.originalname,
-  }),
+  params: async (req, file) => {
+    const uniqueName =
+      Date.now() + "-" + Math.round(Math.random() * 1e9);
+
+    return {
+      folder: "resumes",
+      resource_type: "raw",
+      public_id: uniqueName,
+      format: path.extname(file.originalname).replace(".", ""),
+    };
+  },
 });
 
-const upload = multer({ storage, fileFilter });
+const multerUpload = multer({ storage, fileFilter });
+
+// 🔥 Wrap single() to inject filename like local storage
+const upload = {
+  single: (fieldName) => {
+    return (req, res, next) => {
+      multerUpload.single(fieldName)(req, res, (err) => {
+        if (err) return next(err);
+
+        if (req.file) {
+          // mimic local disk filename behavior
+          req.file.filename = req.file.path;
+        }
+
+        next();
+      });
+    };
+  },
+};
 
 module.exports = upload;

@@ -7,9 +7,6 @@ const CreateIncomeHeadAccount = () => {
     financialProductCompany: "",
     incomeTaxRefund: "",
     incomeFromCommission: "",
-    description: "",
-    creditDate: "",
-    amount: "",
   });
 
   const companies = [
@@ -40,7 +37,7 @@ const CreateIncomeHeadAccount = () => {
       >
         <Card.Body className="p-4">
           <h2 className="mb-4 text-center fw-bold text-primary">
-            Create Account 
+            Create Income Head Account 
           </h2>
 
           <Form onSubmit={handleSubmit}>
@@ -49,7 +46,7 @@ const CreateIncomeHeadAccount = () => {
               <Col md={6}>
                 <Form.Group>
                   <Form.Label className="fw-semibold">
-                    Name
+                    Head Name
                   </Form.Label>
                   <Form.Control
                     type="text"
@@ -115,60 +112,7 @@ const CreateIncomeHeadAccount = () => {
                 </Form.Group>
               </Col>
             </Row>
-
-            {/* Row 3 */}
-            <Row className="mb-4">
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Credit Date
-                  </Form.Label>
-                  <Form.Control
-                    type="date"
-                    name="creditDate"
-                    value={formData.creditDate}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Total Amount
-                  </Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleChange}
-                    placeholder="Enter total amount"
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* Description */}
-            <Row className="mb-4">
-              <Col>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Description
-                  </Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Enter description"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
+            
             <div className="text-center">
               <Button
                 type="submit"

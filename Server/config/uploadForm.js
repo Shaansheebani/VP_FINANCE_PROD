@@ -49,7 +49,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Document-only filter (same as before)
+// Document-only filter
 const fileFilter = (req, file, cb) => {
   const allowed = [
     "application/pdf",
@@ -61,20 +61,24 @@ const fileFilter = (req, file, cb) => {
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ];
 
-  if (allowed.includes(file.mimetype)) cb(null, true);
-  else cb(new Error("Only document files allowed"), false);
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only document files allowed"), false);
+  }
 };
 
 // Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
-    folder: "resume_documents",
-    resource_type: "auto",
+    folder: "Forms",
+    resource_type: "raw", // IMPORTANT for pdf/doc/excel
     public_id: Date.now() + "-" + file.originalname,
   }),
 });
 
-const uploadResume = multer({ storage, fileFilter });
+// Same name as your local version
+const uploadForm = multer({ storage, fileFilter });
 
-module.exports = uploadResume;
+module.exports = uploadForm;

@@ -15,9 +15,11 @@
 
 // module.exports = upload;
 
+// ========================================================================
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
 // Cloudinary config
 cloudinary.config({
@@ -26,16 +28,22 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Storage
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
-    folder: "images",
-    resource_type: "image",
-    public_id: Date.now() + "-" + file.originalname,
-  }),
+  params: async (req, file) => {
+    const uniqueSuffix =
+      Date.now() + "-" + Math.round(Math.random() * 1e9);
+
+    return {
+      folder: "images",
+      resource_type: "image",
+      public_id: uniqueSuffix,
+      format: path.extname(file.originalname).replace(".", ""),
+    };
+  },
 });
 
 const upload = multer({ storage });
 
 module.exports = upload;
+

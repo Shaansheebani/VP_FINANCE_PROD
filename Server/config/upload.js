@@ -45,49 +45,31 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
-// Cloudinary Config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Keep your fileFilter SAME
-const fileFilter = (req, file, cb) => {
-  const allowedMimeTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/avif",
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "text/plain",
-    "text/csv",
-  ];
-
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Unsupported file type!"), false);
-  }
-};
-
-// Cloudinary Storage
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
-    folder: "general_uploads",
-    resource_type: "auto", // important for pdf, doc, excel
-    public_id: Date.now() + "-" + file.originalname,
-  }),
+  params: async (req, file) => {
+    const unique =
+      Date.now() + "-" + Math.round(Math.random() * 1e9);
+
+    return {
+      folder: "images",
+      resource_type: "image",
+      public_id: unique,
+      format: path.extname(file.originalname).replace(".", ""),
+    };
+  },
 });
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage });
 
 module.exports = upload;
+
+
