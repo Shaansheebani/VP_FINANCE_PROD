@@ -15,21 +15,54 @@ const fs = require("fs");
 const app = express();
 
 // CORS Middleware
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:3000",
+//       "https://stupendous-croissant-ed072e.netlify.app",
+//       "http://localhost:3001",
+//       "https://frontend.systemmanager.in/vpfinance",
+//       "https://vpfinancial.vercel.app",
+//       "https://vp-financial-fblwkle3v-shaansheebanis-projects.vercel.app"
+//     ],
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//     preflightContinue: false,
+//     optionsSuccessStatus: 204,
+//     credentials: true,
+//   })
+// );
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://stupendous-croissant-ed072e.netlify.app",
-      "http://localhost:3001",
-      "https://frontend.systemmanager.in/vpfinance",
-      "https://vpfinancial.vercel.app",
-    ],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman, mobile apps)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://stupendous-croissant-ed072e.netlify.app",
+        "https://frontend.systemmanager.in",
+        "https://vpfinancial.vercel.app",
+      ];
+
+      // Allow all vercel preview + production domains
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.includes("vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
     credentials: true,
   })
 );
+
+// Explicitly handle preflight
+app.options("*", cors());
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
