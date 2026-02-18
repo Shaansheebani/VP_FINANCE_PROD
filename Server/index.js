@@ -22,6 +22,7 @@ app.use(
       "https://stupendous-croissant-ed072e.netlify.app",
       "http://localhost:3001",
       "https://frontend.systemmanager.in/vpfinance",
+      "https://vpfinancial.vercel.app",
     ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
