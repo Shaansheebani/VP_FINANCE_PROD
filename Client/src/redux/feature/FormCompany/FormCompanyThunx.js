@@ -6,9 +6,12 @@ const API_URL = "/api/form-company";
 /* ===================== CREATE ===================== */
 export const createCompanyName = createAsyncThunk(
   "formCompany/createCompanyName",
-  async (payload, { rejectWithValue }) => {
+  async ({ companyName, productId }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/add`, payload);
+      const { data } = await axios.post(`${API_URL}/add`, {
+        companyName,
+        productId,
+      });
       return data.data;
     } catch (error) {
       return rejectWithValue(
@@ -17,6 +20,7 @@ export const createCompanyName = createAsyncThunk(
     }
   }
 );
+
 
 /* ===================== READ ===================== */
 export const fetchCompanyNames = createAsyncThunk(
@@ -36,10 +40,11 @@ export const fetchCompanyNames = createAsyncThunk(
 /* ===================== UPDATE ===================== */
 export const updateCompanyName = createAsyncThunk(
   "formCompany/updateCompanyName",
-  async ({ id, companyName }, { rejectWithValue }) => {
+  async ({ id, companyName, productId }, { rejectWithValue }) => {
     try {
       const { data } = await axios.put(`${API_URL}/${id}`, {
         companyName,
+        productId,
       });
       return data.data;
     } catch (error) {
@@ -49,6 +54,7 @@ export const updateCompanyName = createAsyncThunk(
     }
   }
 );
+
 
 /* ===================== DELETE ===================== */
 export const deleteCompanyName = createAsyncThunk(

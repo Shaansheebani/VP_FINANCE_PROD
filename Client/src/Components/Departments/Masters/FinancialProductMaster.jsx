@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../../config/axios";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const FinancialProductMaster = () => {
@@ -7,7 +7,7 @@ const FinancialProductMaster = () => {
   const [name, setName] = useState("");
   const [editId, setEditId] = useState(null);
 
-  const BASE_URL = "http://localhost:5000/api/department-financial-products";
+  const BASE_URL = "api/department-financial-products";
 
   // ======================
   // FETCH ALL

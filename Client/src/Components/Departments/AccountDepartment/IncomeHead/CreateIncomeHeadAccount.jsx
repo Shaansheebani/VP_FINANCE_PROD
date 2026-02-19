@@ -1,129 +1,264 @@
-import React, { useState } from "react";
-import { Form, Row, Col, Button, Card } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import axios from "../../../../config/axios";
+import { Form, Row, Col, Button, Card, Table } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCompanyNames } from "../../../../redux/feature/FormCompany/FormCompanyThunx";
+
+import {
+  fetchIncomeHeadAccounts,
+  createIncomeHeadAccount,
+  updateIncomeHeadAccount,
+  deleteIncomeHeadAccount,
+} from "../../../../redux/feature/IncomeHead/IncomeHeadAccountThunx";
 
 const CreateIncomeHeadAccount = () => {
+  const dispatch = useDispatch();
+
+  /* ================= REDUX ================= */
+  const { accounts } = useSelector((state) => state.incomeHeadAccount);
+  const { companies: allCompanies } = useSelector((state) => state.formCompany);
+
+  /* ================= LOCAL ================= */
+  const [financialProducts, setFinancialProducts] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [editId, setEditId] = useState(null);
+
   const [formData, setFormData] = useState({
     accountName: "",
-    financialProductCompany: "",
+    financialProduct: "",
+    company: "",
     incomeTaxRefund: "",
     incomeFromCommission: "",
   });
 
-  const companies = [
-    "LIC",
-    "HDFC Life",
-    "ICICI Prudential",
-    "SBI Mutual Fund",
-  ];
+  /* ================= FETCH ================= */
+  useEffect(() => {
+    dispatch(fetchIncomeHeadAccounts());
+    dispatch(fetchCompanyNames());
 
+    const fetchFinancialProducts = async () => {
+      const res = await axios.get("api/department-financial-products");
+      setFinancialProducts(res?.data?.data || []);
+    };
+
+    fetchFinancialProducts();
+  }, [dispatch]);
+
+  /* ================= COMPANY FILTER ================= */
+  useEffect(() => {
+    if (!formData.financialProduct) return setCompanies([]);
+
+    const filtered =
+      allCompanies?.filter(
+        (c) =>
+          (c.productId?._id || c.productId) === formData.financialProduct
+      ) || [];
+
+    setCompanies(filtered);
+  }, [formData.financialProduct, allCompanies]);
+
+  /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+      ...(name === "financialProduct" && { company: "" }),
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
+  const resetForm = () => {
+    setFormData({
+      accountName: "",
+      financialProduct: "",
+      company: "",
+      incomeTaxRefund: "",
+      incomeFromCommission: "",
+    });
+    setEditId(null);
   };
 
+  // submit
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (editId) {
+      await dispatch(updateIncomeHeadAccount({ id: editId, data: formData }));
+    } else {
+      await dispatch(createIncomeHeadAccount(formData));
+    }
+
+    resetForm();
+  };
+
+
+  // edit
+  const handleEdit = (acc) => {
+    const productId = acc.financialProduct?._id || acc.financialProduct;
+    const companyId = acc.company?._id || acc.company;
+
+    setEditId(acc._id);
+
+    /* force company filtering BEFORE form set */
+    const filtered =
+      allCompanies?.filter(
+        (c) => (c.productId?._id || c.productId) === productId
+      ) || [];
+
+    setCompanies(filtered);
+
+    setFormData({
+      accountName: acc.accountName,
+      financialProduct: productId,
+      company: companyId,
+      incomeTaxRefund: acc.incomeTaxRefund,
+      incomeFromCommission: acc.incomeFromCommission,
+    });
+  };
+
+  // delete
+  const handleDelete = (id) => {
+    dispatch(deleteIncomeHeadAccount(id));
+  };
+
+  /* ================= UI ================= */
   return (
-    <div className="d-flex justify-content-center">
-      <Card
-        className="shadow-lg border-0"
-        style={{ width: "100%", maxWidth: "900px", borderRadius: "15px" }}
-      >
-        <Card.Body className="p-4">
-          <h2 className="mb-4 text-center fw-bold text-primary">
-            Create Income Head Account 
-          </h2>
+    <div className="container py-4">
+      {/* FORM */}
+      <Card className="shadow-lg border-0 mb-5">
+        <Card.Body>
+          <h3 className="text-center mb-4">Create Income Head</h3>
 
           <Form onSubmit={handleSubmit}>
-            {/* Row 1 */}
-            <Row className="mb-4">
+            <Form.Group className="mb-3">
+              <Form.Label>Account Name</Form.Label>
+              <Form.Control
+                name="accountName"
+                value={formData.accountName}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+
+            <Row className="mb-3">
               <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Head Name
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="accountName"
-                    value={formData.accountName}
-                    onChange={handleChange}
-                    placeholder="Enter Name"
-                  />
-                </Form.Group>
+                <Form.Select
+                  name="financialProduct"
+                  value={formData.financialProduct}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Financial Product</option>
+                  {financialProducts.map((p) => (
+                    <option key={p._id} value={p._id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </Form.Select>
               </Col>
 
               <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Financial Product Company
-                  </Form.Label>
-                  <Form.Select
-                    name="financialProductCompany"
-                    value={formData.financialProductCompany}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select Company</option>
-                    {companies.map((company, index) => (
-                      <option key={index} value={company}>
-                        {company}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
+                <Form.Select
+                  name="company"
+                  value={formData.company}
+                  onChange={handleChange}
+                  disabled={!formData.financialProduct}
+                  required
+                >
+                  <option value="">Company</option>
+                  {companies.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.companyName}
+                    </option>
+                  ))}
+                </Form.Select>
               </Col>
             </Row>
 
-            {/* Row 2 */}
             <Row className="mb-4">
               <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Income Tax Refund
-                  </Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="incomeTaxRefund"
-                    value={formData.incomeTaxRefund}
-                    onChange={handleChange}
-                    placeholder="Enter refund amount"
-                  />
-                </Form.Group>
+                <Form.Control
+                  type="number"
+                  name="incomeTaxRefund"
+                  placeholder="Tax Refund"
+                  value={formData.incomeTaxRefund}
+                  onChange={handleChange}
+                />
               </Col>
 
               <Col md={6}>
-                <Form.Group>
-                  <Form.Label className="fw-semibold">
-                    Income From Commission
-                  </Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="incomeFromCommission"
-                    value={formData.incomeFromCommission}
-                    onChange={handleChange}
-                    placeholder="Enter commission amount"
-                  />
-                </Form.Group>
+                <Form.Control
+                  type="number"
+                  name="incomeFromCommission"
+                  placeholder="Commission"
+                  value={formData.incomeFromCommission}
+                  onChange={handleChange}
+                />
               </Col>
             </Row>
-            
+
             <div className="text-center">
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                className="px-5 rounded-pill"
-              >
-                Save Account
+              <Button type="submit">
+                {editId ? "Update Account" : "Save Account"}
               </Button>
             </div>
           </Form>
+        </Card.Body>
+      </Card>
+
+      {/* TABLE */}
+      <Card>
+        <Card.Body>
+          <h5 className="mb-3">Income Head Accounts</h5>
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-[900px]">
+              <Table bordered hover className="mb-0">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Product</th>
+                    <th>Company</th>
+                    <th>Tax</th>
+                    <th>Commission</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {accounts.map((acc) => (
+                    <tr key={acc._id}>
+                      <td className="whitespace-nowrap">{acc.accountName}</td>
+                      <td className="whitespace-nowrap">{acc.financialProduct?.name}</td>
+                      <td className="whitespace-nowrap">{acc.company?.companyName}</td>
+                      <td className="whitespace-nowrap">{acc.incomeTaxRefund}</td>
+                      <td className="whitespace-nowrap">{acc.incomeFromCommission}</td>
+
+                      <td className="whitespace-nowrap">
+                        <Button
+                          size="sm"
+                          variant="warning"
+                          onClick={() => handleEdit(acc)}
+                          className="me-2"
+                        >
+                          Edit
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          onClick={() => handleDelete(acc._id)}
+                        >
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </div>
         </Card.Body>
       </Card>
     </div>

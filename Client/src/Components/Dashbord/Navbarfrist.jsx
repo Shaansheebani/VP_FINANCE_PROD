@@ -492,12 +492,12 @@ const Navbarfristn = () => {
                         <div className="space-y-1">
                           {[
                             {
-                              name: "Add Company",
-                              to: "/department-company",
-                            },
-                            {
                               name: "Add Financial Product",
                               to: "/department-financial",
+                            },
+                            {
+                              name: "Add Company",
+                              to: "/department-company",
                             },
                           ].map((item, idx) => (
                             <Link

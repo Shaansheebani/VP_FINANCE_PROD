@@ -34,6 +34,8 @@ import employeeReducer from "./feature/Employee/EmployeeSlice";
 import marketingFormsReducer from "./feature/MarketingForms/marketingFormsSlice";
 import servicingFormsReducer from "./feature/ServicingForms/servicingFormsSlice";
 import formCompanyReducer from "./feature/FormCompany/FormCompanySlice";
+import incomeHeadAccountReducer from "./feature/IncomeHead/IncomeHeadAccountSlice";
+import incomeHeadReducer from "./feature/IncomeHead/IncomeHeadSlice";
 
 export const store = configureStore({
   reducer: {
@@ -72,5 +74,7 @@ export const store = configureStore({
     marketingForms: marketingFormsReducer,
     servicingForms: servicingFormsReducer,
     formCompany: formCompanyReducer,
+    incomeHeadAccount: incomeHeadAccountReducer,
+    incomeHead: incomeHeadReducer,
   },
 });
