@@ -1,15 +1,11 @@
 const mongoose = require("mongoose");
 
-const IncomeHeadAccountSchema = new mongoose.Schema(
+const expenseHeadAccountSchema = new mongoose.Schema(
   {
     head: {
       type: String,
       required: true,
-      trim: true,
-      lowercase: true,
     },
-
-    // null = main head
     subHead: {
       type: String,
       default: null,
@@ -25,13 +21,7 @@ const IncomeHeadAccountSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* prevent duplicate subHead inside same head */
-IncomeHeadAccountSchema.index(
-  { head: 1, subHead: 1 },
-  { unique: true }
-);
-
 module.exports = mongoose.model(
-  "IncomeHeadAccount",
-  IncomeHeadAccountSchema
+  "ExpenseHeadAccount",
+  expenseHeadAccountSchema
 );

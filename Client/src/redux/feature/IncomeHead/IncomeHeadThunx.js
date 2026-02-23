@@ -20,20 +20,7 @@ export const createIncomeHead = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await axios.post("/api/income-head", data);
-      return res.data.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
-    }
-  }
-);
-
-/* ================= DELETE ================= */
-export const deleteIncomeHead = createAsyncThunk(
-  "incomeHead/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await axios.delete(`/api/income-head/${id}`);
-      return id;
+      return res.data.data; // populated accountHead
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
@@ -53,3 +40,15 @@ export const updateIncomeHead = createAsyncThunk(
   }
 );
 
+/* ================= DELETE ================= */
+export const deleteIncomeHead = createAsyncThunk(
+  "incomeHead/delete",
+  async (id, { rejectWithValue }) => {
+    try {
+      await axios.delete(`/api/income-head/${id}`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);

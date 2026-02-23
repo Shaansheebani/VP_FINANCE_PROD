@@ -4,12 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchFinancialProduct } from "../../../redux/feature/FinancialProduct/FinancialThunx";
 
 import { ToastContainer, toast } from "react-toastify";
-import { resetCompanyNameStatus } from "../../../redux/feature/ComapnyName/CompanySlice";
+import { resetCompanyNameStatus } from "../../../redux/feature/CompanyName/CompanySlice";
 import {
   createCompanyName,
   fetchCompanyNameById,
   updateCompanyName,
-} from "../../../redux/feature/ComapnyName/CompanyThunx";
+} from "../../../redux/feature/CompanyName/CompanyThunx";
 const initialFormState = {
   financialProduct: "",
   companyName: "",

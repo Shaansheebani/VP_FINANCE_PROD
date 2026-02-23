@@ -7,7 +7,7 @@ import compositeTaskReducer from "./feature/CompositeTask/CompositeSlice";
 import MarketingTaskReducer from "./feature/MarketingTask/MarketingSlice";
 import ServiceTaskReducer from "./feature/ServiceTask/ServiceSlice";
 import FinancialProductReducer from "./feature/FinancialProduct/FinancialSlice";
-import CompanyNameReducer from "./feature/ComapnyName/CompanySlice";
+import CompanyNameReducer from "./feature/CompanyName/CompanySlice";
 import suspectReducer from "./feature/SuspectRedux/SuspectSlice";
 import prospectReducer from "./feature/ProspectRedux/ProspectSlice";
 import registrarReducer from "./feature/Registrar/RegistrarSlice";
@@ -36,6 +36,10 @@ import servicingFormsReducer from "./feature/ServicingForms/servicingFormsSlice"
 import formCompanyReducer from "./feature/FormCompany/FormCompanySlice";
 import incomeHeadAccountReducer from "./feature/IncomeHead/IncomeHeadAccountSlice";
 import incomeHeadReducer from "./feature/IncomeHead/IncomeHeadSlice";
+import bankReducer from "./feature/BankRedux/BankSlice";
+import expenseHeadAccountReducer from "./feature/ExpenseHead/AccountSlice";
+import expenseReducer from "./feature/ExpenseHead/ExpenseSlice";
+import balanceReducer from "./feature/Balance/BalanceSlice";
 
 export const store = configureStore({
   reducer: {
@@ -76,5 +80,9 @@ export const store = configureStore({
     formCompany: formCompanyReducer,
     incomeHeadAccount: incomeHeadAccountReducer,
     incomeHead: incomeHeadReducer,
+    expenseHeadAccount: expenseHeadAccountReducer,
+    bank: bankReducer,
+    expense: expenseReducer,
+    balance: balanceReducer,
   },
 });

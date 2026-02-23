@@ -85,6 +85,7 @@ import OEDashboard from "../Components/OEDashboard/OEDashboard";
 // Department Components:
 import FormCompanyMaster from "../Components/Departments/Masters/FormCompanyMaster";
 import FinancialProductMaster from "../Components/Departments/Masters/FinancialProductMaster";
+import AddBank from "../Components/Departments/Masters/AddBank";
 // marketing
 import MarketingLife from "../Components/Departments/MarketingDepartment/MarketingLife";
 import MarketingHealth from "../Components/Departments/MarketingDepartment/MarketingHealth";
@@ -98,7 +99,8 @@ import ServicingReal from "../Components/Departments/ServicingDepartment/Servici
 import ServicingMutual from "../Components/Departments/ServicingDepartment/ServicingMutual";
 //account department
 import IncomeHead from "../Components/Departments/AccountDepartment/IncomeHead/IncomeHead"
-
+import ExpensesHead from "../Components/Departments/AccountDepartment/ExpensesHead/ExpensesHead"
+import BalanceReports from "../Components/Reports/FinancialReports/BalanceReport"
 // Import new HR Dashboard modules
 import HRDashboardHome from "../Components/HRDashboard/HRDashboardHome";
 import Analytics from "../Components/HRDashboard/modules/Analytics";
@@ -262,6 +264,7 @@ const AppRoutes = () => {
           path="/reports/telecaller-report/:telecallerId"
           element={<TelecallerReportDetail />}
         />
+        <Route path="financial-reports" element={< BalanceReports />}/>
         <Route path="/import-lead" element={<ImportLead />} />
         <Route path="/kyc" element={<KYCtabs />} />
         {/* Employee - Only OA */}
@@ -287,8 +290,10 @@ const AppRoutes = () => {
         {/* departments */}
         <Route path="/department-company" element={<FormCompanyMaster />} />
         <Route path="/department-financial" element={<FinancialProductMaster />} />
+        <Route path="/banks" element={<AddBank />} />
         {/* accounts department */}
         <Route path="/income-head" element={<IncomeHead />} />
+        <Route path="/expenses-head" element={<ExpensesHead />} />
         {/* marketing */}
         <Route path="/marketing-life" element={<MarketingLife />} />
         <Route path="/marketing-health" element={<MarketingHealth />} />

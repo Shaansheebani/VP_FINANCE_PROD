@@ -1,12 +1,40 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../../config/axios";
 
-/* ================= FETCH ================= */
+/* ================= FETCH ALL ================= */
 export const fetchIncomeHeadAccounts = createAsyncThunk(
   "incomeHeadAccount/fetch",
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get("/api/income-head-account");
+      return res.data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+/* ================= FETCH HEADS (dropdown) ================= */
+export const fetchHeads = createAsyncThunk(
+  "incomeHeadAccount/fetchHeads",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get("/api/income-head-account/heads");
+      return res.data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+/* ================= FETCH SUBHEAD BY HEAD ================= */
+export const fetchSubHeads = createAsyncThunk(
+  "incomeHeadAccount/fetchSubHeads",
+  async (head, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        `/api/income-head-account/subheads/${head}`
+      );
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);

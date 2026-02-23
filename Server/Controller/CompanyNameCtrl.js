@@ -1,11 +1,9 @@
-/* This code snippet is a part of a Node.js application that defines a controller function for creating
-a new company in the database. Here's a breakdown of what the code is doing: */
 const FinancialProduct = require("../Models/FinancialProductModel");
 const Company = require("../Models/CompanyNameModel");
 
 exports.createCompanyName = async (req, res) => {
   try {
-    console.log(req.body, "dkfjsdklfjs");
+    console.log(req.body, "company");
     const { financialProduct } = req.body;
 
     const productExists = await FinancialProduct.findById(financialProduct);

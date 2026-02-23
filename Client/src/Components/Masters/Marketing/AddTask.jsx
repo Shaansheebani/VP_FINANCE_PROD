@@ -8,7 +8,7 @@
 //   clearSuccessMessage,
 // } from "../../../redux/feature/CompositeTask/CompositeSlice";
 // import { fetchFinancialProduct } from "../../../redux/feature/FinancialProduct/FinancialThunx";
-// import { fetchCompanyName } from "../../../redux/feature/ComapnyName/CompanyThunx";
+// import { fetchCompanyName } from "../../../redux/feature/CompanyName/CompanyThunx";
 // import axios from "axios";
 
 // const AddTaskMarketing = ({ on, data, onSuccess }) => {
@@ -1073,7 +1073,7 @@ import {
   clearSuccessMessage,
 } from "../../../redux/feature/MarketingTask/MarketingSlice";
 import { fetchFinancialProduct } from "../../../redux/feature/FinancialProduct/FinancialThunx";
-import { fetchCompanyName } from "../../../redux/feature/ComapnyName/CompanyThunx";
+import { fetchCompanyName } from "../../../redux/feature/CompanyName/CompanyThunx";
 import axios from "axios";
 
 const AddTaskMarketing = ({ data, onSuccess }) => {

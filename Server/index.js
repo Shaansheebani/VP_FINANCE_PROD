@@ -124,7 +124,10 @@ const servicingFormRoutes = require("./Routes/FormRoutes/ServicingFormRoutes");
 const formCompanyRoutes = require("./Routes/FormRoutes/FormCompanyRoutes");
 const departmentFinancialProductRoutes = require("./Routes/FormRoutes/departmentFinancialProductRoutes");
 const incomeHeadAccountRoute = require("./Routes/IncomeHeadAccountRoute");
-
+const bankRoutes = require("./Routes/BankRoutes");
+const ExpenseHeadAccount = require("./Routes/ExpenseHeadAccountRoute"); 
+const expenseRoutes = require("./Routes/ExpenseHeadRoutes");
+const balanceRoutes = require("./Routes/BalanceRoutes.js");
 // STATIC FILES
 app.use(
   "/vacancy-images",
@@ -207,6 +210,10 @@ app.use("/api/form-company", formCompanyRoutes);
 app.use("/api/department-financial-products", departmentFinancialProductRoutes);
 app.use("/api/income-head-account", incomeHeadAccountRoute);
 app.use("/api/income-head", require("./Routes/IncomeHeadRoute"));
+app.use("/api/banks", bankRoutes);
+app.use("/api/expense-head-account", ExpenseHeadAccount);
+app.use("/api/expense", expenseRoutes);
+app.use("/api/balance", balanceRoutes);
 
 // 🎯 SERVE REACT BUILD
 app.use(express.static(path.join(__dirname, "dist")));
@@ -218,8 +225,8 @@ app.get("*", (req, res) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT} `);
 });

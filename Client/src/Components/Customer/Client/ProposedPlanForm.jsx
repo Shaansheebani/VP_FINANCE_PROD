@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../../config/axios";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { addProposedFinancialPlan } from "../../../redux/feature/ClientRedux/ClientThunx";
-import { fetchCompanyName } from "../../../redux/feature/ComapnyName/CompanyThunx";
+import { fetchCompanyName } from "../../../redux/feature/CompanyName/CompanyThunx";
 import { fetchFinancialProduct } from '../../../redux/feature/FinancialProduct/FinancialThunx'
 import { toast } from "react-toastify";
 

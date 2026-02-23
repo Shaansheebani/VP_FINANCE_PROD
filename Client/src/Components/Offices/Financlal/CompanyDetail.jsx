@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   deleteCompanyName,
   fetchCompanyName,
-} from "../../../redux/feature/ComapnyName/CompanyThunx";
+} from "../../../redux/feature/CompanyName/CompanyThunx";
 import { BsPencilSquare, BsTrash } from "react-icons/bs";
 function CompanyDetail({ setActiveTab, setEditId }) {
   const dispatch = useDispatch();

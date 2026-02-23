@@ -20,40 +20,40 @@ const incomeHeadSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      /* FETCH */
-      .addCase(fetchIncomeHeads.pending, (state) => {
-        state.loading = true;
-      })
+      /* ================= FETCH ================= */
       .addCase(fetchIncomeHeads.fulfilled, (state, action) => {
-        state.loading = false;
         state.incomeList = action.payload;
-      })
-      .addCase(fetchIncomeHeads.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.error = null;
       })
 
-      /* CREATE */
+      /* ================= CREATE ================= */
       .addCase(createIncomeHead.fulfilled, (state, action) => {
         state.incomeList.unshift(action.payload);
+        state.error = null;
       })
 
-      /* UPDATE */
+      /* ================= UPDATE ================= */
       .addCase(updateIncomeHead.fulfilled, (state, action) => {
         const index = state.incomeList.findIndex(
           (i) => i._id === action.payload._id
         );
-        if (index !== -1) state.incomeList[index] = action.payload;
+
+        if (index !== -1) {
+          state.incomeList.splice(index, 1);
+          state.incomeList.unshift(action.payload);
+        }
+
+        state.error = null;
       })
 
-      /* DELETE */
+      /* ================= DELETE ================= */
       .addCase(deleteIncomeHead.fulfilled, (state, action) => {
         state.incomeList = state.incomeList.filter(
           (i) => i._id !== action.payload
         );
       })
 
-      /* GLOBAL LOADING */
+      /* ================= GLOBAL MATCHERS ================= */
       .addMatcher(
         (action) =>
           action.type.startsWith("incomeHead/") &&
@@ -68,6 +68,15 @@ const incomeHeadSlice = createSlice({
           action.type.endsWith("/fulfilled"),
         (state) => {
           state.loading = false;
+        }
+      )
+      .addMatcher(
+        (action) =>
+          action.type.startsWith("incomeHead/") &&
+          action.type.endsWith("/rejected"),
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload || action.error?.message;
         }
       );
   },

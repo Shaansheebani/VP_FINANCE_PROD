@@ -492,12 +492,12 @@ const Navbarfristn = () => {
                         <div className="space-y-1">
                           {[
                             {
-                              name: "Add Financial Product",
-                              to: "/department-financial",
+                              name: "Add Company for Form",
+                              to: "/department-company",
                             },
                             {
-                              name: "Add Company",
-                              to: "/department-company",
+                              name: "Manage Bank",
+                              to: "/banks",
                             },
                           ].map((item, idx) => (
                             <Link
@@ -963,21 +963,21 @@ const Navbarfristn = () => {
                           Telecaller Calling Report
                         </Link>
                         <Link
-                          to="/financial-product-list"
+                          to="/financial-reports"
                           className="block text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-2 py-1 rounded"
                           onClick={closeAllDropdowns}
                         >
                           Financial Reports
                         </Link>
                         <Link
-                          to="/report-2"
+                          to="/sales-report"
                           className="block text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-2 py-1 rounded"
                           onClick={closeAllDropdowns}
                         >
                           Sales Reports
                         </Link>
                         <Link
-                          to="/report-3"
+                          to="/customer-reports"
                           className="block text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-2 py-1 rounded"
                           onClick={closeAllDropdowns}
                         >

@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const incomeHeadSchema = new mongoose.Schema(
+const expenseSchema = new mongoose.Schema(
   {
-    accountHead: {
+    expenseHead: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "IncomeHeadAccount",
+      ref: "ExpenseHeadAccount",
       required: true,
     },
 
@@ -14,12 +14,9 @@ const incomeHeadSchema = new mongoose.Schema(
       required: true,
     },
 
-    description: {
-      type: String,
-      trim: true,
-    },
+    description: String,
 
-    creditDate: {
+    debitDate: {
       type: Date,
       required: true,
     },
@@ -27,10 +24,9 @@ const incomeHeadSchema = new mongoose.Schema(
     amount: {
       type: Number,
       required: true,
-      min: 0,
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("IncomeHead", incomeHeadSchema);
+module.exports = mongoose.model("Expense", expenseSchema);

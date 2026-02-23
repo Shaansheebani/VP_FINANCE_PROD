@@ -4,10 +4,14 @@ import {
   createIncomeHeadAccount,
   updateIncomeHeadAccount,
   deleteIncomeHeadAccount,
+  fetchHeads,
+  fetchSubHeads,
 } from "./IncomeHeadAccountThunx";
 
 const initialState = {
   accounts: [],
+  heads: [],
+  subHeads: [],
   loading: false,
   error: null,
 };
@@ -15,12 +19,16 @@ const initialState = {
 const incomeHeadAccountSlice = createSlice({
   name: "incomeHeadAccount",
   initialState,
-  reducers: {},
+  reducers: {
+    clearSubHeads: (state) => {
+      state.subHeads = [];
+    },
+  },
 
   extraReducers: (builder) => {
     builder
 
-      /* FETCH */
+      /* ================= FETCH ALL ================= */
       .addCase(fetchIncomeHeadAccounts.pending, (state) => {
         state.loading = true;
       })
@@ -33,12 +41,22 @@ const incomeHeadAccountSlice = createSlice({
         state.error = action.payload;
       })
 
-      /* CREATE */
+      /* ================= FETCH HEADS ================= */
+      .addCase(fetchHeads.fulfilled, (state, action) => {
+        state.heads = action.payload;
+      })
+
+      /* ================= FETCH SUBHEADS ================= */
+      .addCase(fetchSubHeads.fulfilled, (state, action) => {
+        state.subHeads = action.payload;
+      })
+
+      /* ================= CREATE ================= */
       .addCase(createIncomeHeadAccount.fulfilled, (state, action) => {
         state.accounts.unshift(action.payload);
       })
 
-      /* UPDATE */
+      /* ================= UPDATE ================= */
       .addCase(updateIncomeHeadAccount.fulfilled, (state, action) => {
         const index = state.accounts.findIndex(
           (a) => a._id === action.payload._id
@@ -46,7 +64,7 @@ const incomeHeadAccountSlice = createSlice({
         if (index !== -1) state.accounts[index] = action.payload;
       })
 
-      /* DELETE */
+      /* ================= DELETE ================= */
       .addCase(deleteIncomeHeadAccount.fulfilled, (state, action) => {
         state.accounts = state.accounts.filter(
           (a) => a._id !== action.payload
@@ -55,4 +73,5 @@ const incomeHeadAccountSlice = createSlice({
   },
 });
 
+export const { clearSubHeads } = incomeHeadAccountSlice.actions;
 export default incomeHeadAccountSlice.reducer;

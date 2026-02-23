@@ -1,85 +1,79 @@
 import React, { useState, useEffect } from "react";
-import axios from "../../../../config/axios";
-import { Form, Row, Col, Button, Card, Table } from "react-bootstrap";
+import { Card, Table, Button, Modal, Form, Row, Col } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCompanyNames } from "../../../../redux/feature/FormCompany/FormCompanyThunx";
 
 import {
   fetchIncomeHeadAccounts,
   createIncomeHeadAccount,
   updateIncomeHeadAccount,
   deleteIncomeHeadAccount,
+  fetchHeads,
 } from "../../../../redux/feature/IncomeHead/IncomeHeadAccountThunx";
+
+import { fetchFinancialProduct } from "../../../../redux/feature/FinancialProduct/FinancialThunx";
+import { fetchCompanyName } from "../../../../redux/feature/CompanyName/CompanyThunx";
 
 const CreateIncomeHeadAccount = () => {
   const dispatch = useDispatch();
 
-  /* ================= REDUX ================= */
   const { accounts } = useSelector((state) => state.incomeHeadAccount);
-  const { companies: allCompanies } = useSelector((state) => state.formCompany);
 
-  /* ================= LOCAL ================= */
-  const [financialProducts, setFinancialProducts] = useState([]);
-  const [companies, setCompanies] = useState([]);
+  const companyNames =
+    useSelector((state) => state.CompanyName.CompanyNames) || [];
+
+  const financialProducts =
+    useSelector((state) => state.financialProduct.FinancialProducts) || [];
+
+  const [show, setShow] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [useFinancialMode, setUseFinancialMode] = useState(false);
 
   const [formData, setFormData] = useState({
-    accountName: "",
-    financialProduct: "",
-    company: "",
-    incomeTaxRefund: "",
-    incomeFromCommission: "",
+    head: "",
+    subHead: "",
   });
 
-  /* ================= FETCH ================= */
   useEffect(() => {
     dispatch(fetchIncomeHeadAccounts());
-    dispatch(fetchCompanyNames());
-
-    const fetchFinancialProducts = async () => {
-      const res = await axios.get("api/department-financial-products");
-      setFinancialProducts(res?.data?.data || []);
-    };
-
-    fetchFinancialProducts();
+    dispatch(fetchHeads());
+    dispatch(fetchFinancialProduct());
+    dispatch(fetchCompanyName());
   }, [dispatch]);
 
-  /* ================= COMPANY FILTER ================= */
-  useEffect(() => {
-    if (!formData.financialProduct) return setCompanies([]);
+  /* ⭐ correct populated filter */
+  const filteredCompanies = companyNames.filter(
+    (c) =>
+      (c.financialProduct?._id || c.financialProduct)?.toString() ===
+      formData.head?.toString()
+  );
 
-    const filtered =
-      allCompanies?.filter(
-        (c) =>
-          (c.productId?._id || c.productId) === formData.financialProduct
-      ) || [];
+  /* helpers */
+  const getProductName = (id) =>
+    financialProducts.find((p) => p._id === id)?.name || id;
 
-    setCompanies(filtered);
-  }, [formData.financialProduct, allCompanies]);
+  const getCompanyName = (id) =>
+    companyNames.find((c) => c._id === id)?.companyName || id;
 
-  /* ================= HANDLERS ================= */
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === "financialProduct" && { company: "" }),
-    }));
-  };
-
-  const resetForm = () => {
-    setFormData({
-      accountName: "",
-      financialProduct: "",
-      company: "",
-      incomeTaxRefund: "",
-      incomeFromCommission: "",
-    });
+  const handleCreate = () => {
     setEditId(null);
+    setUseFinancialMode(false);
+    setFormData({ head: "", subHead: "" });
+    setShow(true);
   };
 
-  // submit
+  const handleEdit = (item) => {
+    setEditId(item._id);
+
+    const isFinancial = financialProducts.some((p) => p._id === item.head);
+    setUseFinancialMode(isFinancial);
+
+    setFormData({
+      head: item.head,
+      subHead: item.subHead || "",
+    });
+
+    setShow(true);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -90,177 +84,154 @@ const CreateIncomeHeadAccount = () => {
       await dispatch(createIncomeHeadAccount(formData));
     }
 
-    resetForm();
+    setShow(false);
   };
 
-
-  // edit
-  const handleEdit = (acc) => {
-    const productId = acc.financialProduct?._id || acc.financialProduct;
-    const companyId = acc.company?._id || acc.company;
-
-    setEditId(acc._id);
-
-    /* force company filtering BEFORE form set */
-    const filtered =
-      allCompanies?.filter(
-        (c) => (c.productId?._id || c.productId) === productId
-      ) || [];
-
-    setCompanies(filtered);
-
-    setFormData({
-      accountName: acc.accountName,
-      financialProduct: productId,
-      company: companyId,
-      incomeTaxRefund: acc.incomeTaxRefund,
-      incomeFromCommission: acc.incomeFromCommission,
-    });
-  };
-
-  // delete
-  const handleDelete = (id) => {
-    dispatch(deleteIncomeHeadAccount(id));
-  };
-
-  /* ================= UI ================= */
   return (
     <div className="container py-4">
-      {/* FORM */}
-      <Card className="shadow-lg border-0 mb-5">
+      <Card className="shadow">
         <Card.Body>
-          <h3 className="text-center mb-4">Create Income Head</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h5>Head & SubHead</h5>
+            <Button onClick={handleCreate}>+ Create</Button>
+          </div>
 
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Account Name</Form.Label>
-              <Form.Control
-                name="accountName"
-                value={formData.accountName}
-                onChange={handleChange}
-                required
+          <Table bordered hover>
+            <thead>
+              <tr>
+                <th>Head</th>
+                <th>SubHead</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {accounts?.map((item) => (
+                <tr key={item._id}>
+                  <td>{getProductName(item.head)}</td>
+                  <td>{item.subHead ? getCompanyName(item.subHead) : "-"}</td>
+
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="warning"
+                      className="me-2"
+                      onClick={() => handleEdit(item)}
+                    >
+                      Edit
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() =>
+                        dispatch(deleteIncomeHeadAccount(item._id))
+                      }
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
+
+      <Modal show={show} onHide={() => setShow(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {editId ? "Edit Head / SubHead" : "Create Head / SubHead"}
+          </Modal.Title>
+        </Modal.Header>
+
+        <Form onSubmit={handleSubmit}>
+          <Modal.Body>
+            <div className="mb-4 flex items-center gap-3 border-b pb-3">
+              <input
+                type="checkbox"
+                checked={useFinancialMode}
+                onChange={(e) => {
+                  setUseFinancialMode(e.target.checked);
+                  setFormData({ head: "", subHead: "" });
+                }}
+                className="h-4 w-4"
               />
-            </Form.Group>
+              <label className="text-sm font-medium">
+                Create for Financial Product & Company
+              </label>
+            </div>
 
             <Row className="mb-3">
-              <Col md={6}>
-                <Form.Select
-                  name="financialProduct"
-                  value={formData.financialProduct}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Financial Product</option>
-                  {financialProducts.map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
+              <Col>
+                <Form.Label>Head</Form.Label>
 
-              <Col md={6}>
-                <Form.Select
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  disabled={!formData.financialProduct}
-                  required
-                >
-                  <option value="">Company</option>
-                  {companies.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.companyName}
-                    </option>
-                  ))}
-                </Form.Select>
+                {useFinancialMode ? (
+                  <Form.Select
+                    value={formData.head}
+                    onChange={(e) =>
+                      setFormData({ head: e.target.value, subHead: "" })
+                    }
+                    required
+                  >
+                    <option value="">Select Financial Product</option>
+                    {financialProducts.map((fp) => (
+                      <option key={fp._id} value={fp._id}>
+                        {fp.name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    value={formData.head}
+                    onChange={(e) =>
+                      setFormData({ ...formData, head: e.target.value })
+                    }
+                    required
+                  />
+                )}
               </Col>
             </Row>
 
-            <Row className="mb-4">
-              <Col md={6}>
-                <Form.Control
-                  type="number"
-                  name="incomeTaxRefund"
-                  placeholder="Tax Refund"
-                  value={formData.incomeTaxRefund}
-                  onChange={handleChange}
-                />
-              </Col>
+            <Row>
+              <Col>
+                <Form.Label>SubHead</Form.Label>
 
-              <Col md={6}>
-                <Form.Control
-                  type="number"
-                  name="incomeFromCommission"
-                  placeholder="Commission"
-                  value={formData.incomeFromCommission}
-                  onChange={handleChange}
-                />
+                {useFinancialMode ? (
+                  <Form.Select
+                    value={formData.subHead}
+                    onChange={(e) =>
+                      setFormData({ ...formData, subHead: e.target.value })
+                    }
+                    disabled={!formData.head}
+                  >
+                    <option value="">Select Company</option>
+                    {filteredCompanies.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.companyName}
+                      </option>
+                    ))}
+                  </Form.Select>
+                ) : (
+                  <Form.Control
+                    value={formData.subHead}
+                    onChange={(e) =>
+                      setFormData({ ...formData, subHead: e.target.value })
+                    }
+                  />
+                )}
               </Col>
             </Row>
+          </Modal.Body>
 
-            <div className="text-center">
-              <Button type="submit">
-                {editId ? "Update Account" : "Save Account"}
-              </Button>
-            </div>
-          </Form>
-        </Card.Body>
-      </Card>
-
-      {/* TABLE */}
-      <Card>
-        <Card.Body>
-          <h5 className="mb-3">Income Head Accounts</h5>
-          <div className="w-full overflow-x-auto">
-            <div className="min-w-[900px]">
-              <Table bordered hover className="mb-0">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Product</th>
-                    <th>Company</th>
-                    <th>Tax</th>
-                    <th>Commission</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {accounts.map((acc) => (
-                    <tr key={acc._id}>
-                      <td className="whitespace-nowrap">{acc.accountName}</td>
-                      <td className="whitespace-nowrap">{acc.financialProduct?.name}</td>
-                      <td className="whitespace-nowrap">{acc.company?.companyName}</td>
-                      <td className="whitespace-nowrap">{acc.incomeTaxRefund}</td>
-                      <td className="whitespace-nowrap">{acc.incomeFromCommission}</td>
-
-                      <td className="whitespace-nowrap">
-                        <Button
-                          size="sm"
-                          variant="warning"
-                          onClick={() => handleEdit(acc)}
-                          className="me-2"
-                        >
-                          Edit
-                        </Button>
-
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() => handleDelete(acc._id)}
-                        >
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </div>
-        </Card.Body>
-      </Card>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShow(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">{editId ? "Update" : "Create"}</Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </div>
   );
 };
