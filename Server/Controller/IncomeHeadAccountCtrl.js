@@ -3,21 +3,21 @@ const IncomeHeadAccount = require("../Models/IncomeHeadAccountModel");
 /* ================= CREATE ================= */
 exports.createIncomeHeadAccount = async (req, res) => {
   try {
-    const exists = await IncomeHeadAccount.findOne({
-      head: req.body.head,
-      subHead: req.body.subHead || null,
-    });
+    const { headRef, subHeadRef, headCustom, subHeadCustom } = req.body;
 
-    if (exists) {
+    /* prevent empty head */
+    if (!headRef && !headCustom) {
       return res.status(400).json({
         success: false,
-        message: "Head / SubHead already exists",
+        message: "Head is required",
       });
     }
 
     const data = await IncomeHeadAccount.create({
-      head: req.body.head,
-      subHead: req.body.subHead || null,
+      headRef: headRef || null,
+      subHeadRef: subHeadRef || null,
+      headCustom: headCustom || null,
+      subHeadCustom: subHeadCustom || null,
     });
 
     res.status(201).json({ success: true, data });
@@ -87,24 +87,22 @@ exports.getIncomeHeadAccountById = async (req, res) => {
 /* ================= UPDATE ================= */
 exports.updateIncomeHeadAccount = async (req, res) => {
   try {
-    const exists = await IncomeHeadAccount.findOne({
-      _id: { $ne: req.params.id },
-      head: req.body.head,
-      subHead: req.body.subHead || null,
-    });
+    const { headRef, subHeadRef, headCustom, subHeadCustom } = req.body;
 
-    if (exists) {
+    if (!headRef && !headCustom) {
       return res.status(400).json({
         success: false,
-        message: "Head / SubHead already exists",
+        message: "Head is required",
       });
     }
 
     const data = await IncomeHeadAccount.findByIdAndUpdate(
       req.params.id,
       {
-        head: req.body.head,
-        subHead: req.body.subHead || null,
+        headRef: headRef || null,
+        subHeadRef: subHeadRef || null,
+        headCustom: headCustom || null,
+        subHeadCustom: subHeadCustom || null,
       },
       { new: true }
     );

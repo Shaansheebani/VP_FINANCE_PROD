@@ -83,6 +83,8 @@ import EmployeeDetails from "../Components/Employee/OfficeAdmin/EmployeeDetails"
 import OEDashboard from "../Components/OEDashboard/OEDashboard";
 
 // Department Components:
+import AccountantLayout from "../Components/Departments/AccountantDashboard/AccountantLayout"
+import AccountantDashboard from "../Components/Departments/AccountantDashboard/AccountantDashboard";
 import FormCompanyMaster from "../Components/Departments/Masters/FormCompanyMaster";
 import FinancialProductMaster from "../Components/Departments/Masters/FinancialProductMaster";
 import AddBank from "../Components/Departments/Masters/AddBank";
@@ -101,6 +103,7 @@ import ServicingMutual from "../Components/Departments/ServicingDepartment/Servi
 import IncomeHead from "../Components/Departments/AccountDepartment/IncomeHead/IncomeHead"
 import ExpensesHead from "../Components/Departments/AccountDepartment/ExpensesHead/ExpensesHead"
 import BalanceReports from "../Components/Reports/FinancialReports/BalanceReport"
+import Reports from "../Components/Departments/AccountantDashboard/Reports"
 // Import new HR Dashboard modules
 import HRDashboardHome from "../Components/HRDashboard/HRDashboardHome";
 import Analytics from "../Components/HRDashboard/modules/Analytics";
@@ -128,7 +131,7 @@ import ServiceAssignments from "../Components/Masters/Servicing/ServiceAssignmen
 // 🔒 ProtectedRoute Component (Strict Role Check)
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || null);
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   if (!token || !user) {
     return <Navigate to="/auth/login" replace />;
@@ -204,6 +207,22 @@ const AppRoutes = () => {
         <Route path="not-reachable" element={<StatusBasedLeadsPage />} />
       </Route>
 
+      <Route
+        path="/accountant/*"
+        element={
+          <ProtectedRoute allowedRoles={["Accountant"]}>
+            <AccountantLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<AccountantDashboard />} />
+        {/* <Route path="dashboard" element={<div>Accountant Dashboard</div>} /> */}
+        <Route path="income-head" element={<IncomeHead />} />
+        <Route path="expenses-head" element={<ExpensesHead />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="office-purchase" element={<OfficePurchase />} />
+      </Route>
+
       {/* 🏢 OA (Office Admin) - Only OA can access Layout & all other routes */}
       <Route
         path="/"
@@ -264,7 +283,7 @@ const AppRoutes = () => {
           path="/reports/telecaller-report/:telecallerId"
           element={<TelecallerReportDetail />}
         />
-        <Route path="financial-reports" element={< BalanceReports />}/>
+        <Route path="reports" element={<Reports />} />
         <Route path="/import-lead" element={<ImportLead />} />
         <Route path="/kyc" element={<KYCtabs />} />
         {/* Employee - Only OA */}
@@ -284,7 +303,7 @@ const AppRoutes = () => {
         <Route path="/mutual-fund/registrar" element={<RegistrarTabs />} />
         <Route path="/mutual-fund/amc" element={<AMCtabs />} />
         <Route path="/office-diary" element={<OfficeDiaryTabs />} />
-        <Route path="/office-purchase" element={<OfficePurchase />} />
+        {/* <Route path="/office-purchase" element={<OfficePurchase />} /> */}
         <Route path="/important-documents" element={<ImpDocument />} />
         <Route path="/CRE" element={<CREDashboard />} />
         {/* departments */}
@@ -349,6 +368,8 @@ const NavigateToRoleBasedRoute = () => {
       return <Navigate to="/dashboard" replace />;
     case "Telecaller":
       return <Navigate to="/telecaller/dashboard" replace />;
+    case "Accountant":
+      return <Navigate to="/accountant/dashboard" replace />;
     case "OA":
       return <Navigate to="/" replace />;
     default:

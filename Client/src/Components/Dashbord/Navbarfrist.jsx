@@ -482,7 +482,7 @@ const Navbarfristn = () => {
                   <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 p-4 
                     w-[950px] min-w-[600px] bg-white shadow-xl rounded-b-lg border border-gray-200 z-50 overflow-x-auto">
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
 
                       {/* Marketing Master */}
                       <div>
@@ -533,7 +533,7 @@ const Navbarfristn = () => {
                         </div>
                       </div>
 
-                      {/* Account Department */}
+                      {/* Account Department
                       <div>
                         <h6 className="text-red-600 text-xs font-semibold mb-2">
                           Account Department
@@ -565,7 +565,7 @@ const Navbarfristn = () => {
                             </Link>
                           ))}
                         </div>
-                      </div>
+                      </div> */}
 
                       {/* Marketing Department */}
                       <div>
@@ -963,7 +963,7 @@ const Navbarfristn = () => {
                           Telecaller Calling Report
                         </Link>
                         <Link
-                          to="/financial-reports"
+                          to="/reports"
                           className="block text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-2 py-1 rounded"
                           onClick={closeAllDropdowns}
                         >

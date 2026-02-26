@@ -40,6 +40,8 @@ import bankReducer from "./feature/BankRedux/BankSlice";
 import expenseHeadAccountReducer from "./feature/ExpenseHead/AccountSlice";
 import expenseReducer from "./feature/ExpenseHead/ExpenseSlice";
 import balanceReducer from "./feature/Balance/BalanceSlice";
+import incomeExpenseAccountReducer from "./feature/IncomeExpense/incomeExpenseAccountSlice";
+import entryReducer from "./feature/IncomeExpense/incomeExpenseEntrySlice";
 
 export const store = configureStore({
   reducer: {
@@ -84,5 +86,8 @@ export const store = configureStore({
     bank: bankReducer,
     expense: expenseReducer,
     balance: balanceReducer,
+    incomeExpenseAccount: incomeExpenseAccountReducer,
+    accountEntry: entryReducer,
+
   },
 });

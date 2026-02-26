@@ -2,19 +2,32 @@ const mongoose = require("mongoose");
 
 const IncomeHeadAccountSchema = new mongoose.Schema(
   {
-    head: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
+    /* Structured mode */
+    headRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinancialProduct",
+      default: null,
     },
 
-    // null = main head
-    subHead: {
-      type: String,
+    subHeadRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
       default: null,
+    },
+
+    /* Custom mode */
+    headCustom: {
+      type: String,
       trim: true,
       lowercase: true,
+      default: null,
+    },
+
+    subHeadCustom: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: null,
     },
 
     isActive: {
@@ -25,13 +38,4 @@ const IncomeHeadAccountSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* prevent duplicate subHead inside same head */
-IncomeHeadAccountSchema.index(
-  { head: 1, subHead: 1 },
-  { unique: true }
-);
-
-module.exports = mongoose.model(
-  "IncomeHeadAccount",
-  IncomeHeadAccountSchema
-);
+module.exports = mongoose.model("IncomeHeadAccount", IncomeHeadAccountSchema);

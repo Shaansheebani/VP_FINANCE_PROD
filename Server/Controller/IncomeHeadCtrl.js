@@ -2,14 +2,37 @@ const IncomeHead = require("../Models/IncomeHeadModel");
 const ExcelJS = require("exceljs");
 const PDFDocument = require("pdfkit");
 
+const getHeadName = (acc) => {
+  if (!acc) return "-";
+
+  const head =
+    acc.headRef?.productName ||
+    acc.headCustom ||
+    "-";
+
+  const sub =
+    acc.subHeadRef?.companyName ||
+    acc.subHeadCustom ||
+    "";
+
+  return sub ? `${head} → ${sub}` : head;
+};
+
 /* CREATE */
 exports.createIncome = async (req, res) => {
   try {
     const created = await IncomeHead.create(req.body);
 
+
     const data = await IncomeHead.findById(created._id)
       .populate("bank", "bankName accountNumber")
-      .populate("accountHead", "head subHead");
+      .populate({
+        path: "accountHead",
+        populate: [
+          { path: "headRef", select: "productName" },
+          { path: "subHeadRef", select: "companyName" },
+        ],
+      })
 
     res.status(201).json({ success: true, data });
   } catch (err) {
@@ -25,8 +48,8 @@ exports.getAllIncome = async (req, res) => {
       .populate({
         path: "accountHead",
         populate: [
-          { path: "head" },       // financial product
-          { path: "subHead" },    // company
+          { path: "headRef", select: "productName" },
+          { path: "subHeadRef", select: "companyName" },
         ],
       })
       .sort({ creditDate: -1 });
@@ -44,7 +67,13 @@ exports.updateIncome = async (req, res) => {
 
     const data = await IncomeHead.findById(req.params.id)
       .populate("bank", "bankName accountNumber")
-      .populate("accountHead", "head subHead");
+      .populate({
+        path: "accountHead",
+        populate: [
+          { path: "headRef", select: "productName" },
+          { path: "subHeadRef", select: "companyName" },
+        ],
+      })
 
     res.json({ success: true, data });
   } catch (err) {
@@ -65,8 +94,13 @@ exports.deleteIncome = async (req, res) => {
 exports.exportIncomeExcel = async (req, res) => {
   try {
     const data = await IncomeHead.find()
-      .populate("accountHead", "head subHead");
-    // .populate("bank", "bankName accountNumber");
+      .populate({
+        path: "accountHead",
+        populate: [
+          { path: "headRef", select: "productName" },
+          { path: "subHeadRef", select: "companyName" },
+        ],
+      })
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet("Income Sheet");
@@ -81,9 +115,7 @@ exports.exportIncomeExcel = async (req, res) => {
     let total = 0;
 
     data.forEach((i) => {
-      const name = i.accountHead?.subHead
-        ? `${i.accountHead.head} → ${i.accountHead.subHead}`
-        : i.accountHead?.head;
+      const name = getHeadName(i.accountHead);
 
       sheet.addRow({
         account: name,
@@ -112,7 +144,13 @@ exports.exportIncomeExcel = async (req, res) => {
 
 exports.exportIncomePDF = async (req, res) => {
   try {
-    const data = await IncomeHead.find().populate("accountHead", "head subHead");
+    const data = await IncomeHead.find().populate({
+      path: "accountHead",
+      populate: [
+        { path: "headRef", select: "productName" },
+        { path: "subHeadRef", select: "companyName" },
+      ],
+    });
 
     const doc = new PDFDocument({ margin: 30, size: "A4" });
 
@@ -130,9 +168,7 @@ exports.exportIncomePDF = async (req, res) => {
     let total = 0;
 
     data.forEach((i) => {
-      const name = i.accountHead?.subHead
-        ? `${i.accountHead.head} → ${i.accountHead.subHead}`
-        : i.accountHead?.head;
+      const name = getHeadName(i.accountHead);
 
       doc.text(name, 30, y);
       doc.text(i.description || "-", 180, y);

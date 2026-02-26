@@ -91,6 +91,7 @@ const telemarketerRoutes = require("./Routes/telemarketerRoutes.js");
 const OARoutes = require("./Routes/OARoutes.js");
 const OERoutes = require("./Routes/OERoutes.js");
 const HRRoutes = require("./Routes/HRRoutes.js");
+const accountantRoutes = require("./Routes/accountantRoutes.js");
 const authRoutes = require("./Routes/authRoutes");
 const LeadSourceRoute = require("./Routes/Lead/LeadSourceRoute");
 const LeadOccupationRoute = require("./Routes/Lead/LeadOccupationRoute");
@@ -128,6 +129,9 @@ const bankRoutes = require("./Routes/BankRoutes");
 const ExpenseHeadAccount = require("./Routes/ExpenseHeadAccountRoute"); 
 const expenseRoutes = require("./Routes/ExpenseHeadRoutes");
 const balanceRoutes = require("./Routes/BalanceRoutes.js");
+const incomeExpenseAccountRoute = require("./Routes/IncomeExpenseAccountRoute");
+const incomeExpenseRoutes = require("./Routes/IncomeExpenseRoute");
+const IncomeExpenseReportRoute = require("./Routes/IncomeExpenseReportRoute");
 // STATIC FILES
 app.use(
   "/vacancy-images",
@@ -175,6 +179,7 @@ app.use("/api/telecaller", telecallerRoutes);
 app.use("/api/OE", OERoutes);
 app.use("/api/OA", OARoutes);
 app.use("/api/HR", HRRoutes);
+app.use("/api/accountant", accountantRoutes);
 app.use("/api/business-associates", businessAssociatesRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", require("./Routes/upload"));
@@ -214,6 +219,9 @@ app.use("/api/banks", bankRoutes);
 app.use("/api/expense-head-account", ExpenseHeadAccount);
 app.use("/api/expense", expenseRoutes);
 app.use("/api/balance", balanceRoutes);
+app.use("/api/income-expense-accounts", incomeExpenseAccountRoute);
+app.use("/api/income-expense", incomeExpenseRoutes);
+app.use("/api/IncomeExpenseReport", IncomeExpenseReportRoute);
 
 // 🎯 SERVE REACT BUILD
 app.use(express.static(path.join(__dirname, "dist")));

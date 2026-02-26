@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import CreateIncomeHeadAccount from "./CreateIncomeHeadAccount";
-import IncomeHeadList from "./IncomeHeadList";
-import ExportIncomeHeadData from "./ExportIncomeHeadData"; 
+import IncomeAccount from "./IncomeAccount";
+import Income from "./Income";
 
 const IncomeHead = () => {
   const [activeTab, setActiveTab] = useState("list");
@@ -28,21 +27,11 @@ const IncomeHead = () => {
             Income Head Master
           </button>
         </li>
-
-        <li>
-          <button
-            onClick={() => setActiveTab("export")}
-            className={`px-3 py-2 rounded ${activeTab === "export" ? "bg-primary text-white" : "bg-light"}`}
-          >
-            Export Income Data
-          </button>
-        </li>
       </ul>
 
       <div className="p-3 border rounded bg-light">
-        {activeTab === "list" && <IncomeHeadList />}
-        {activeTab === "create" && <CreateIncomeHeadAccount />}
-        {activeTab === "export" && <ExportIncomeHeadData />}
+        {activeTab === "list" && <Income />}
+        {activeTab === "create" && <IncomeAccount />}
       </div>
     </div>
   );

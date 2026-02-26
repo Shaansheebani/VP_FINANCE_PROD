@@ -44,7 +44,7 @@ export default function Login() {
 
     try {
       await dispatch(loginUser(loginData)).unwrap();
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // -----------------------------------------
@@ -75,6 +75,9 @@ export default function Login() {
         break;
       case "RM":
         navigate("/rm/dashboard");
+        break;
+      case "Accountant":
+        navigate("/accountant/dashboard");
         break;
       default:
         navigate("/dashboard");

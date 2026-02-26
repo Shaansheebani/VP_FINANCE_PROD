@@ -34,7 +34,6 @@ const CompanyNameSlice = createSlice({
       .addCase(fetchCompanyName.fulfilled, (state, action) => {
         state.loading = false;
         console.log(action.payload);
-        
         state.CompanyNames = action.payload;
       })
       .addCase(fetchCompanyName.rejected, (state, action) => {

@@ -5,8 +5,6 @@ import {
     fetchBankLedger,
 } from "../../../redux/feature/Balance/BalanceThunks";
 import { fetchIncomeHeadAccounts } from "../../../redux/feature/IncomeHead/IncomeHeadAccountThunx";
-import { fetchFinancialProduct } from "../../../redux/feature/FinancialProduct/FinancialThunx";
-import { fetchCompanyName } from "../../../redux/feature/CompanyName/CompanyThunx";
 
 const BalanceReport = () => {
     const dispatch = useDispatch();
@@ -17,21 +15,15 @@ const BalanceReport = () => {
     // financial products
     const { accounts } =
         useSelector((s) => s.incomeHeadAccount);
-    const financialProducts =
-        useSelector((s) => s.financialProduct.FinancialProducts) || [];
-    const companyNames =
-        useSelector((s) => s.CompanyName.CompanyNames) || [];
-
+    
     const [selectedBank, setSelectedBank] = useState(null);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
     useEffect(() => {
         dispatch(fetchBankWiseBalance());
-
         dispatch(fetchIncomeHeadAccounts());
-        dispatch(fetchFinancialProduct());
-        dispatch(fetchCompanyName());
+       
     }, [dispatch]);
 
     const applyFilter = () => {
@@ -72,6 +64,43 @@ const BalanceReport = () => {
         return subHeadName ? `${headName} → ${subHeadName}` : headName;
     };
 
+    const downloadExcel = () => {
+        if (selectedBank) {
+            window.open(
+                `/api/balance/export/ledger/excel?bankId=${selectedBank}&startDate=${startDate}&endDate=${endDate}`
+            );
+        } else {
+            window.open(
+                `/api/balance/export/excel?startDate=${startDate}&endDate=${endDate}`
+            );
+        }
+    };
+
+    const downloadPDF = () => {
+        if (selectedBank) {
+            window.open(
+                `/api/balance/export/ledger/pdf?bankId=${selectedBank}&startDate=${startDate}&endDate=${endDate}`
+            );
+        } else {
+            window.open(
+                `/api/balance/export/pdf?startDate=${startDate}&endDate=${endDate}`
+            );
+        }
+    };
+
+    const computedTotals = React.useMemo(() => {
+        if (totals && typeof totals.totalIncome === "number") return totals;
+
+        const totalIncome = bankSummary.reduce((a, b) => a + (b.totalIncome || 0), 0);
+        const totalExpense = bankSummary.reduce((a, b) => a + (b.totalExpense || 0), 0);
+
+        return {
+            totalIncome,
+            totalExpense,
+            overallBalance: totalIncome - totalExpense,
+        };
+    }, [totals, bankSummary]);
+
     return (
         <div className="container mt-4">
             <h3>Bank Balance Report</h3>
@@ -96,34 +125,46 @@ const BalanceReport = () => {
             </div>
 
             {/* ================= TOTAL CARDS ================= */}
-            {totals && (
+            {bankSummary.length > 0 && (
                 <div className="row mb-4">
+                    
                     <div className="col">
-                        <div className="card p-3 shadow-sm">
+                        <div className="card p-3 border shadow-sm" style={{ backgroundColor: "#3C6FDE", color: "white" }}>
                             <b>Total Income</b>
-                            <div className="text-success">₹ {totals.totalIncome}</div>
+                            <div>₹ {computedTotals.totalIncome}</div>
                         </div>
                     </div>
+
                     <div className="col">
-                        <div className="card p-3 shadow-sm">
+                        <div className="card p-3 border shadow-sm" style={{ backgroundColor: "#DE3C3C", color: "white" }}>
                             <b>Total Expense</b>
-                            <div className="text-danger">₹ {totals.totalExpense}</div>
+                            <div>₹ {computedTotals.totalExpense}</div>
                         </div>
                     </div>
+
                     <div className="col">
-                        <div className="card p-3 shadow-sm">
+                        <div className="card p-3 border shadow-sm" style={{ backgroundColor: "#69DB5A", color: "white" }}>
                             <b>Net Balance</b>
-                            <div
-                                style={{
-                                    color: totals.overallBalance >= 0 ? "green" : "red",
-                                }}
-                            >
-                                ₹ {totals.overallBalance}
-                            </div>
+                            <div>₹ {computedTotals.overallBalance}</div>
                         </div>
                     </div>
                 </div>
             )}
+
+            <div className="mb-2">
+                <button className="m-2 p-2 hover:scale-105"
+                    style={{ color: "white", backgroundColor: "#FFC52B", borderRadius: "5px" }}
+                    onClick={downloadExcel}
+                >
+                    Export Excel
+                </button>
+                <button className="m-2 p-2 hover:scale-105"
+                    style={{ color: "white", backgroundColor: "#B81F1F", borderRadius: "5px" }}
+                    onClick={downloadPDF}
+                >
+                    Export PDF
+                </button>
+            </div>
 
             {/* ================= BANK SUMMARY ================= */}
             <table className="table table-bordered">
@@ -178,7 +219,7 @@ const BalanceReport = () => {
                                         <tbody>
                                             {incomeList.map((l, i) => (
                                                 <tr key={i}>
-                                                    <td>{resolveHeadName(l.incomeHead)}</td>
+                                                    <td>{l.incomeHead || "-"}</td>
                                                     <td className="text-end text-success">
                                                         ₹ {l.amount}
                                                     </td>
@@ -246,7 +287,7 @@ const BalanceReport = () => {
                                 <tr key={i}>
                                     <td>{new Date(l.date).toLocaleDateString()}</td>
                                     <td className="text-success">
-                                        {l.type === "income" ? resolveHeadName(l.incomeHead) : "-"}
+                                        {l.type === "income" ? l.incomeHead : "-"}
                                     </td>
                                     <td className="text-danger">
                                         {l.type === "expense" ? l.expenseHead : "-"}
