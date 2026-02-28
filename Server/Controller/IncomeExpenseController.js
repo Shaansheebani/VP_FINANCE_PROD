@@ -5,6 +5,9 @@ const IncomeExpense = require("../Models/IncomeExpenseModel");
 ========================= */
 exports.createTransaction = async (req, res) => {
   try {
+    if (req.file) {
+      req.body.bill = req.file.path;
+    }
     const data = await IncomeExpense.create(req.body);
 
     const populated = await IncomeExpense.findById(data._id)
@@ -86,6 +89,9 @@ exports.getTransactionById = async (req, res) => {
 ========================= */
 exports.updateTransaction = async (req, res) => {
   try {
+    if (req.file) {
+      req.body.bill = req.file.path;
+    }
     const updated = await IncomeExpense.findByIdAndUpdate(
       req.params.id,
       req.body,

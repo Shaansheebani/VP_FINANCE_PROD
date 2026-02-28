@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import CreateExpensesHeadAccount from "./CreateExpensesHeadAccount";
-import ExpensesHeadList from "./ExpensesHeadList";
+
 import ExpenseAccount from "./ExpenseAccount";
 import Expense from "./Expense"
 

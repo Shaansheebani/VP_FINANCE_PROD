@@ -159,19 +159,16 @@ const MarketingMutual = () => {
               className="w-full border px-2 py-1 rounded mb-3"
             />
 
-            {existingFile && (
-              <p className="text-sm mb-2">
-                Current file:
-                <a
-                  href={`${BASE_URL}/uploads/${existingFile}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 ml-1"
-                >
-                  View
-                </a>
-              </p>
-            )}
+            <td className="border px-2 py-1 text-center">
+              <a
+                href={f.file}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600"
+              >
+                View
+              </a>
+            </td>
 
             <input
               type="file"
@@ -215,7 +212,7 @@ const MarketingMutual = () => {
                 <td className="border px-2 py-1">{f.formName}</td>
                 <td className="border px-2 py-1 text-center">
                   <a
-                    href={`${BASE_URL}/forms/${f.file}`}
+                    href={f.file}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600"

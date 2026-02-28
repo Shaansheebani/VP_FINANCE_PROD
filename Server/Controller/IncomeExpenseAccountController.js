@@ -1,5 +1,5 @@
 const IncomeExpenseAccount = require("../Models/IncomeExpenseAccountModel");
-
+const IncomeExpense = require("../Models/IncomeExpenseModel");
 /* =========================
    CREATE
 ========================= */
@@ -131,15 +131,31 @@ exports.dropdownAccounts = async (req, res) => {
 
 
 // delete permanent
+
 exports.deleteAccountPermanent = async (req, res) => {
   try {
-    const deleted = await IncomeExpenseAccount.findByIdAndDelete(
-      req.params.id
-    );
+    const accountId = req.params.id;
 
-    if (!deleted) return res.status(404).json({ message: "Not found" });
+    // ✅ Check if used in transactions
+    const isUsed = await IncomeExpense.findOne({
+      accountRef: accountId,
+      isActive: true,
+    });
 
-    res.json({ message: "Account permanently deleted" });
+    if (isUsed) {
+      return res.status(400).json({
+        message: "Head/SubHead is used in transactions and cannot be deleted",
+      });
+    }
+
+    const deleted = await IncomeExpenseAccount.findByIdAndDelete(accountId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    res.json({ message: "Account deleted successfully" });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

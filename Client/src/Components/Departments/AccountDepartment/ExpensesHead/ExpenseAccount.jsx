@@ -31,9 +31,14 @@ const ExpenseAccount = () => {
     );
   };
 
-  const handlePermanentDelete = (id) => {
-    if (window.confirm("Permanently delete this account? This cannot be undone.")) {
-      dispatch(deleteIncomeExpenseAccountPermanent(id));
+  const handlePermanentDelete = async (id) => {
+    const confirmDelete = window.confirm("Permanently delete?");
+    if (!confirmDelete) return;
+
+    const result = await dispatch(deleteIncomeExpenseAccountPermanent(id));
+
+    if (deleteIncomeExpenseAccountPermanent.rejected.match(result)) {
+      alert(result.payload?.message || "Cannot delete account");
     }
   };
 

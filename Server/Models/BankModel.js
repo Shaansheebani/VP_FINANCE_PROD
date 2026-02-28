@@ -10,13 +10,10 @@ const BankSchema = new mongoose.Schema(
 
     accountNumber: {
       type: String,
-      required: true,
-      trim: true,
     },
 
     ifsc: {
       type: String,
-      required: true,
       trim: true,
       uppercase: true,
     },
@@ -29,7 +26,5 @@ const BankSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* prevent duplicate account number */
-BankSchema.index({ accountNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model("Bank", BankSchema);

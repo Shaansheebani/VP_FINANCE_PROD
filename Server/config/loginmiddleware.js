@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 // ✅ Allowed roles (sab roles yaha rakh do)
-const allowedRoles = ["HR", "OA", "OE", "Telecaller", "Telemarketer"];
+const allowedRoles = ["HR", "OA", "OE", "Telecaller", "Telemarketer","Accountant"];
 
 const roleAuth = (req, res, next) => {
   try {

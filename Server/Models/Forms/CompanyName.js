@@ -8,11 +8,6 @@ const companyNameSchema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
-    productId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "DepartmentFinancialProduct",
-      required: true,
-    },
   },
   { timestamps: true }
 );

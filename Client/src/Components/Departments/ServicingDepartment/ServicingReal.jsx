@@ -13,7 +13,7 @@ import {
 } from "../../../redux/feature/ServicingForms/servicingFormsThunk";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
-const KIND_OF_FORM = "real estate"; 
+const KIND_OF_FORM = "real estate";
 
 const ServicingReal = () => {
   const dispatch = useDispatch();
@@ -176,7 +176,7 @@ const ServicingReal = () => {
               <p className="text-sm mb-2">
                 Current file:
                 <a
-                  href={`${BASE_URL}${existingFile.url}`}
+                  href={existingFile}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 ml-1"
@@ -238,16 +238,14 @@ const ServicingReal = () => {
                 <td className="border px-2 py-1">{f.formType}</td>
                 <td className="border px-2 py-1">{f.formName}</td>
                 <td className="border px-2 py-1 text-center">
-                  {f.file?.url && (
-                    <a
-                      href={`${BASE_URL}/forms/${f.file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600"
-                    >
-                      View
-                    </a>
-                  )}
+                  <a
+                    href={f.file}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600"
+                  >
+                    View
+                  </a>
                 </td>
                 <td className="flex border items-center justify-center px-2 py-1 text-center gap-2">
                   <button

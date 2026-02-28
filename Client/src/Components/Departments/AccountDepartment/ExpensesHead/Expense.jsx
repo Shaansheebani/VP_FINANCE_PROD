@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { toast } from "react-toastify";
 import {
   addEntry,
   getEntries,
@@ -17,9 +17,8 @@ const Expense = () => {
   const { entryList, loading } = useSelector((s) => s.accountEntry);
   const { dropdownAccounts } = useSelector((s) => s.incomeExpenseAccount);
   const { banks } = useSelector((s) => s.bank);
-
+  const [billFile, setBillFile] = useState(null);
   const [editId, setEditId] = useState(null);
-  const [msg, setMsg] = useState("");
 
   const [form, setForm] = useState({
     accountRef: "",
@@ -38,7 +37,7 @@ const Expense = () => {
   const [descModal, setDescModal] = useState({
     open: false,
     desc: "",
-    subHead: "",
+    bill: "",
   });
 
   /* ⭐ dropdowns once */
@@ -87,22 +86,39 @@ const Expense = () => {
     setEditId(null);
   };
 
-  const handleSubmit = () => {
-    if (!form.accountRef || !form.amount || !form.transactionDate) return;
-
-    const payload = { ...form, type: "expense" };
-
-    if (editId) {
-      dispatch(editEntry({ id: editId, data: payload }));
-      setMsg("Expense updated successfully");
-    } else {
-      dispatch(addEntry(payload));
-      setMsg("Expense added successfully");
+  const handleSubmit = async () => {
+    if (!form.accountRef || !form.amount || !form.transactionDate) {
+      toast.error("Please fill all required fields");
+      return;
     }
 
-    resetForm();
+    const formData = new FormData();
 
-    setTimeout(() => setMsg(""), 2500);
+    formData.append("type", "expense");
+    formData.append("accountRef", form.accountRef);
+    formData.append("bankRef", form.bankRef || "");
+    formData.append("amount", form.amount);
+    formData.append("transactionDate", form.transactionDate);
+    formData.append("description", form.description || "");
+
+    if (billFile) {
+      formData.append("bill", billFile);
+    }
+
+    try {
+      if (editId) {
+        await dispatch(editEntry({ id: editId, data: formData })).unwrap();
+        toast.success("Expense updated successfully");
+      } else {
+        await dispatch(addEntry(formData)).unwrap();
+        toast.success("Expense added successfully");
+      }
+
+      resetForm();
+      setBillFile(null);
+    } catch (err) {
+      toast.error(err?.message || "Something went wrong");
+    }
   };
 
   const handleEdit = (row) => {
@@ -204,6 +220,14 @@ const Expense = () => {
             />
           </div>
 
+          <div className="col-md-3">
+            <input
+              type="file"
+              className="form-control"
+              onChange={(e) => setBillFile(e.target.files[0])}
+            />
+          </div>
+
           <div className="col-md-2">
             <button onClick={handleSubmit} className="btn btn-primary w-100">
               {editId ? "Update" : "Add"}
@@ -211,6 +235,9 @@ const Expense = () => {
           </div>
         </div>
       </div>
+      <hr />
+
+      <div className="text-center text-red-300"><h1>Expenses</h1></div>
 
       {/* FILTER */}
       <div className="card p-3 mb-3">
@@ -263,11 +290,12 @@ const Expense = () => {
       <table className="table table-bordered">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Head</th>
-            <th>Bank</th>
+            <th width="100">Date</th>
+            <th>Expense Head</th>
+            <th>Sub Head</th>
+            <th>Transaction Type</th>
             <th>Amount</th>
-            <th>Description</th>
+            <th width="120">Description</th>
             <th width="120">Action</th>
           </tr>
         </thead>
@@ -277,12 +305,11 @@ const Expense = () => {
             <tr key={t._id}>
               <td>{t.transactionDate?.slice(0, 10)}</td>
               <td>
-                {(t.accountRef?.headRef?.name || t.accountRef?.headCustom) +
-                  " - " +
-                  (t.accountRef?.subHeadRef?.companyName ||
-                    t.accountRef?.subHeadCustom ||
-                    "")}
+                {(t.accountRef?.headRef?.name || t.accountRef?.headCustom)}
               </td>
+              <td>{(t.accountRef?.subHeadRef?.companyName ||
+                t.accountRef?.subHeadCustom ||
+                "")}</td>
               <td>{t.bankRef?.bankName || "Cash"}</td>
               <td>{t.amount}</td>
 
@@ -293,10 +320,7 @@ const Expense = () => {
                     setDescModal({
                       open: true,
                       desc: t.description,
-                      subHead:
-                        t.accountRef?.subHeadRef?.companyName ||
-                        t.accountRef?.subHeadCustom ||
-                        "-",
+                      bill: t.bill || "",
                     })
                   }
                 >
@@ -348,14 +372,16 @@ const Expense = () => {
               </div>
 
               <div className="modal-body">
-                <p>
-                  <strong>Sub Head:</strong>{" "}
-                  {descModal.subHead || "No SubHead Added Yet"}
-                </p>
+                <p>{descModal.desc || "-"}</p>
 
-                <p>
-                  <strong>Description:</strong> {descModal.desc || "-"}
-                </p>
+                {descModal.bill && (
+                  <div>
+                    <strong>Bill:</strong>{" "}
+                    <a href={descModal.bill} target="_blank" rel="noreferrer">
+                      View Bill
+                    </a>
+                  </div>
+                )}
               </div>
 
               <div className="modal-footer">

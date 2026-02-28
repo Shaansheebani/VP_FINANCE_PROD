@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-
 const controller = require("../Controller/IncomeExpenseController");
+const { expenseBillUpload } = require("../config/upload");
 
 /* ================= CREATE ================= */
-router.post("/", controller.createTransaction);
+router.post("/", expenseBillUpload.single("bill"), controller.createTransaction);
 
-/* ================= GET ALL (filters supported) ================= */
+/* ================= GET ALL ================= */
 router.get("/", controller.getTransactions);
 
 /* ================= SUMMARY ================= */
@@ -19,9 +19,9 @@ router.get("/bank-summary", controller.getBankSummary);
 router.get("/:id", controller.getTransactionById);
 
 /* ================= UPDATE ================= */
-router.put("/:id", controller.updateTransaction);
+router.put("/:id", expenseBillUpload.single("bill"), controller.updateTransaction);
 
-/* ================= DELETE (soft) ================= */
+/* ================= DELETE ================= */
 router.delete("/:id", controller.deleteTransaction);
 
 module.exports = router;

@@ -26,7 +26,7 @@ const createMarketingForm = async (req, res) => {
       formName,
       formType,
       kindOfForm,
-      file: req.file.filename,
+      file: req.file.path,
     });
 
     return res.status(201).json({

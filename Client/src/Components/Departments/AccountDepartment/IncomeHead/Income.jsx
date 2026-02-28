@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { toast } from "react-toastify";
 import {
   addEntry,
   getEntries,
@@ -17,9 +17,8 @@ const Income = () => {
   const { entryList, loading } = useSelector((s) => s.accountEntry);
   const { dropdownAccounts } = useSelector((s) => s.incomeExpenseAccount);
   const { banks } = useSelector((s) => s.bank);
-
+  const [billFile, setBillFile] = useState(null);
   const [editId, setEditId] = useState(null);
-  const [msg, setMsg] = useState("");
 
   const [form, setForm] = useState({
     accountRef: "",
@@ -27,6 +26,7 @@ const Income = () => {
     amount: "",
     transactionDate: "",
     description: "",
+    bill: "",
   });
 
   const [filters, setFilters] = useState({
@@ -39,6 +39,7 @@ const Income = () => {
     open: false,
     desc: "",
     subHead: "",
+    bill: "",
   });
 
   /* ⭐ FETCH DROPDOWNS ONCE */
@@ -87,26 +88,44 @@ const Income = () => {
       transactionDate: "",
       description: "",
       bankRef: prev.bankRef,   // ⭐ preserve bank
+      bill: ""
     }));
     setEditId(null);
   };
 
-  const handleSubmit = () => {
-    if (!form.accountRef || !form.amount || !form.transactionDate) return;
-
-    const payload = { ...form, type: "income" };
-
-    if (editId) {
-      dispatch(editEntry({ id: editId, data: payload }));
-      setMsg("Income updated successfully");
-    } else {
-      dispatch(addEntry(payload));
-      setMsg("Income added successfully");
+  const handleSubmit = async () => {
+    if (!form.accountRef || !form.amount || !form.transactionDate) {
+      toast.error("Please fill all required fields");
+      return;
     }
 
-    resetForm();
+    const formData = new FormData();
 
-    setTimeout(() => setMsg(""), 2500);
+    formData.append("type", "income");
+    formData.append("accountRef", form.accountRef);
+    formData.append("bankRef", form.bankRef || "");
+    formData.append("amount", form.amount);
+    formData.append("transactionDate", form.transactionDate);
+    formData.append("description", form.description || "");
+
+    if (billFile) {
+      formData.append("bill", billFile);
+    }
+
+    try {
+      if (editId) {
+        await dispatch(editEntry({ id: editId, data: formData })).unwrap();
+        toast.success("Income updated successfully");
+      } else {
+        await dispatch(addEntry(formData)).unwrap();
+        toast.success("Income added successfully");
+      }
+
+      resetForm();
+      setBillFile(null);
+    } catch (err) {
+      toast.error(err?.message || "Something went wrong");
+    }
   };
 
   const handleEdit = (row) => {
@@ -117,6 +136,7 @@ const Income = () => {
       amount: row.amount,
       transactionDate: row.transactionDate?.slice(0, 10),
       description: row.description || "",
+      bill: row.bill || "",
     });
   };
 
@@ -206,6 +226,15 @@ const Income = () => {
             />
           </div>
 
+          <div className="col-md-3">
+            <input
+              type="file"
+              name="bill"
+              className="form-control"
+              onChange={(e) => setBillFile(e.target.files[0])}
+            />
+          </div>
+
           <div className="col-md-2">
             <button onClick={handleSubmit} className="btn btn-primary w-100">
               {editId ? "Update" : "Add"}
@@ -214,6 +243,8 @@ const Income = () => {
         </div>
       </div>
 
+      <hr />
+      <div className="text-blue-950 text-center"><h1>Income</h1></div>
       {/* FILTER */}
       <div className="card p-3 mb-3">
         <div className="row g-2">
@@ -265,11 +296,12 @@ const Income = () => {
       <table className="table table-bordered">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Head</th>
+            <th width="100">Date</th>
+            <th>Income Head</th>
+            <th>Sub Head</th>
             <th>Bank</th>
             <th>Amount</th>
-            <th>Description</th>
+            <th width="120">Description</th>
             <th width="120">Action</th>
           </tr>
         </thead>
@@ -279,6 +311,7 @@ const Income = () => {
             <tr key={t._id}>
               <td>{t.transactionDate?.slice(0, 10)}</td>
               <td>{t.accountRef?.headRef?.name || t.accountRef?.headCustom}</td>
+              <td>{t.accountRef?.subHeadRef?.companyName || t.accountRef?.subHeadCustom}</td>
               <td>{t.bankRef?.bankName || "Cash"}</td>
               <td>{t.amount}</td>
 
@@ -289,10 +322,7 @@ const Income = () => {
                     setDescModal({
                       open: true,
                       desc: t.description,
-                      subHead:
-                        t.accountRef?.subHeadRef?.companyName ||
-                        t.accountRef?.subHeadCustom ||
-                        "-",
+                      bill: t.bill || ""
                     })
                   }
                 >
@@ -310,7 +340,14 @@ const Income = () => {
 
                 <button
                   className="btn btn-sm btn-danger"
-                  onClick={() => dispatch(removeEntry(t._id))}
+                  onClick={async () => {
+                    try {
+                      await dispatch(removeEntry(t._id)).unwrap();
+                      toast.success("Income deleted successfully");
+                    } catch (err) {
+                      toast.error("Delete failed");
+                    }
+                  }}
                 >
                   Delete
                 </button>
@@ -340,20 +377,26 @@ const Income = () => {
                 <button
                   className="btn-close"
                   onClick={() =>
-                    setDescModal({ open: false, desc: "", subHead: "" })
+                    setDescModal({ open: false, desc: "", bill: "" })
                   }
                 />
               </div>
 
               <div className="modal-body">
-                <p>
-                  <strong>Sub Head:</strong>{" "}
-                  {descModal.subHead || "No SubHead Added Yet"}
-                </p>
+
 
                 <p>
                   <strong>Description:</strong> {descModal.desc || "-"}
                 </p>
+                {descModal.bill && (
+                  <p>
+                    <strong>Bill:</strong>{" "}
+                    <a href={descModal.bill} target="_blank" rel="noreferrer">
+                      View Bill
+                    </a>
+                  </p>
+                )}
+
               </div>
 
               <div className="modal-footer">

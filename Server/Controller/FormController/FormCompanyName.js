@@ -3,24 +3,16 @@ const CompanyName = require("../../Models/Forms/CompanyName");
 /* ============ CREATE ============ */
 exports.createCompanyName = async (req, res) => {
   try {
-    const { companyName, productId } = req.body;
+    const { companyName } = req.body;
 
-    if (!companyName || !productId) {
+    if (!companyName) {
       return res.status(400).json({
         success: false,
-        message: "Company name and product are required",
+        message: "Company name is required",
       });
     }
 
-    const exists = await CompanyName.findOne({ companyName, productId });
-    if (exists) {
-      return res.status(409).json({
-        success: false,
-        message: "Company already exists for this product",
-      });
-    }
-
-    const company = await CompanyName.create({ companyName, productId });
+    const company = await CompanyName.create({ companyName });
 
     res.status(201).json({
       success: true,
@@ -32,13 +24,10 @@ exports.createCompanyName = async (req, res) => {
   }
 };
 
-
 /* ============ READ ============ */
 exports.getAllCompanyNames = async (req, res) => {
   try {
-    const companies = await CompanyName.find()
-      .populate("productId", "name")   // ⭐ REQUIRED
-      .sort({ createdAt: -1 });
+    const companies = await CompanyName.find().sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -49,40 +38,22 @@ exports.getAllCompanyNames = async (req, res) => {
   }
 };
 
-exports.getCompaniesByProduct = async (req, res) => {
-  try {
-    const companies = await FormCompany.find({
-      productId: req.params.productId,
-    });
-
-    res.json({
-      success: true,
-      data: companies,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-
-
-
 /* ============ UPDATE ============ */
 exports.updateCompanyName = async (req, res) => {
   try {
     const { id } = req.params;
-    const { companyName, productId } = req.body;
+    const { companyName } = req.body;
 
-    if (!companyName || !productId) {
+    if (!companyName) {
       return res.status(400).json({
         success: false,
-        message: "Company name and product are required",
+        message: "Company name is required",
       });
     }
 
     const updatedCompany = await CompanyName.findByIdAndUpdate(
       id,
-      { companyName, productId },
+      { companyName },
       { new: true }
     );
 
@@ -102,7 +73,6 @@ exports.updateCompanyName = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 /* ============ DELETE ============ */
 exports.deleteCompanyName = async (req, res) => {

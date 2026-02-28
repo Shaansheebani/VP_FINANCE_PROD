@@ -34,12 +34,7 @@ import employeeReducer from "./feature/Employee/EmployeeSlice";
 import marketingFormsReducer from "./feature/MarketingForms/marketingFormsSlice";
 import servicingFormsReducer from "./feature/ServicingForms/servicingFormsSlice";
 import formCompanyReducer from "./feature/FormCompany/FormCompanySlice";
-import incomeHeadAccountReducer from "./feature/IncomeHead/IncomeHeadAccountSlice";
-import incomeHeadReducer from "./feature/IncomeHead/IncomeHeadSlice";
 import bankReducer from "./feature/BankRedux/BankSlice";
-import expenseHeadAccountReducer from "./feature/ExpenseHead/AccountSlice";
-import expenseReducer from "./feature/ExpenseHead/ExpenseSlice";
-import balanceReducer from "./feature/Balance/BalanceSlice";
 import incomeExpenseAccountReducer from "./feature/IncomeExpense/incomeExpenseAccountSlice";
 import entryReducer from "./feature/IncomeExpense/incomeExpenseEntrySlice";
 
@@ -80,14 +75,8 @@ export const store = configureStore({
     marketingForms: marketingFormsReducer,
     servicingForms: servicingFormsReducer,
     formCompany: formCompanyReducer,
-    incomeHeadAccount: incomeHeadAccountReducer,
-    incomeHead: incomeHeadReducer,
-    expenseHeadAccount: expenseHeadAccountReducer,
     bank: bankReducer,
-    expense: expenseReducer,
-    balance: balanceReducer,
     incomeExpenseAccount: incomeExpenseAccountReducer,
     accountEntry: entryReducer,
-
   },
 });

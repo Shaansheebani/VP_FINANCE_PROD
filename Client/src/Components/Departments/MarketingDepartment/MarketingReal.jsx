@@ -174,13 +174,13 @@ const MarketingReal = () => {
             />
 
             {existingFile && (
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm mb-2">
                 Current file:
                 <a
-                  href={`${BASE_URL}/forms/${f.file}`}
+                  href={existingFile}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 underline ml-1"
+                  className="text-blue-600 ml-1"
                 >
                   View
                 </a>
@@ -249,9 +249,9 @@ const MarketingReal = () => {
                   <td className="px-3 py-2 border">
                     {form.formName || "-"}
                   </td>
-                  <td className="border px-3 py-2 text-center">
+                  <td className="border px-2 py-1 text-center">
                     <a
-                      href={`${BASE_URL}/uploads/${form.file}`}
+                      href={f.file}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600"

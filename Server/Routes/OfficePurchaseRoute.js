@@ -1,20 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const officePurchaseController = require("../Controller/OfficePurchaseCtrl");
 
-// Create
-router.post("/", officePurchaseController.createOfficePurchase);
+const {
+  createOfficePurchase,
+  getOfficePurchases,
+  getOfficePurchaseByID,
+  updateOfficePurchase,
+  deleteOfficePurchase,
+} = require("../Controller/OfficePurchaseCtrl");
 
-// Read all
-router.get("/", officePurchaseController.getAllOfficePurchases);
-
-// Read one
-router.get("/:id", officePurchaseController.getOfficePurchaseById);
-
-// Update
-router.put("/:id", officePurchaseController.updateOfficePurchase);
-
-// Delete
-router.delete("/:id", officePurchaseController.deleteOfficePurchase);
+router.post("/", createOfficePurchase);
+router.get("/", getOfficePurchases);
+router.get("/:id", getOfficePurchaseByID);
+router.put("/:id", updateOfficePurchase);
+router.delete("/:id", deleteOfficePurchase);
 
 module.exports = router;

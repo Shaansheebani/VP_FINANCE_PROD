@@ -30,7 +30,11 @@ const AddBank = () => {
 
   /* ================= INPUT ================= */
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setForm({
+      ...form,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
   /* ================= CLOSE ================= */
@@ -42,8 +46,8 @@ const AddBank = () => {
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async () => {
-    if (!form.bankName || !form.accountNumber || !form.ifsc) {
-      alert("All fields required");
+    if (!form.bankName) {
+      alert("please fill mode of transaction");
       return;
     }
 
@@ -69,9 +73,14 @@ const AddBank = () => {
   };
 
   /* ================= DELETE ================= */
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete bank?")) return;
-    dispatch(deleteBank(id));
+
+    const result = await dispatch(deleteBank(id));
+
+    if (deleteBank.rejected.match(result)) {
+      alert(result.payload?.message || "Cannot delete bank");
+    }
   };
 
   /* ================= TOGGLE ================= */
@@ -82,27 +91,41 @@ const AddBank = () => {
   return (
     <div className="p-3">
       <div className="d-flex justify-content-between mb-3">
-        <h5>Bank Master</h5>
-        <Button onClick={() => setShow(true)}>Add Bank</Button>
+        <h5>Transaction Master</h5>
+        <Button onClick={() => setShow(true)}>+ Add Mode Of Transaction</Button>
       </div>
 
-      <Table bordered hover>
-        <thead>
+      <Table bordered hover responsive className="align-middle shadow-sm">
+        <thead className="table-dark text-center">
           <tr>
-            <th>Bank</th>
-            <th>Account No</th>
-            <th>IFSC</th>
-            <th>Status</th>
-            <th width="180">Action</th>
+            <th style={{ width: "30%" }}>Transaction / Bank</th>
+            <th style={{ width: "20%" }}>Account No</th>
+            <th style={{ width: "20%" }}>IFSC</th>
+            <th style={{ width: "15%" }}>Status</th>
+            <th style={{ width: "15%" }}>Action</th>
           </tr>
         </thead>
 
         <tbody>
           {banks?.map((b) => (
-            <tr key={b._id}>
-              <td>{b.bankName}</td>
-              <td>{b.accountNumber}</td>
-              <td>{b.ifsc}</td>
+            <tr key={b._id} className="text-center">
+              <td className="fw-semibold">{b.bankName}</td>
+
+              <td>
+                {b.accountNumber ? (
+                  <span className="text-dark">{b.accountNumber}</span>
+                ) : (
+                  <span className="text-muted fst-italic">Not Applicable</span>
+                )}
+              </td>
+
+              <td>
+                {b.ifsc ? (
+                  <span className="text-dark">{b.ifsc}</span>
+                ) : (
+                  <span className="text-muted fst-italic">Not Applicable</span>
+                )}
+              </td>
 
               <td>
                 <Button
@@ -115,24 +138,27 @@ const AddBank = () => {
               </td>
 
               <td>
-                <Button size="sm" onClick={() => handleEdit(b)}>
-                  Edit
-                </Button>{" "}
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handleDelete(b._id)}
-                >
-                  Delete
-                </Button>
+                <div className="d-flex justify-content-center gap-2">
+                  <Button size="sm" variant="primary" onClick={() => handleEdit(b)}>
+                    Edit
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(b._id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </td>
             </tr>
           ))}
 
           {!banks?.length && !loading && (
             <tr>
-              <td colSpan="5" className="text-center">
-                No banks added
+              <td colSpan="5" className="text-center py-4 text-muted">
+                No transaction mode added
               </td>
             </tr>
           )}
@@ -147,7 +173,7 @@ const AddBank = () => {
 
         <Modal.Body>
           <Form.Group className="mb-2">
-            <Form.Label>Bank Name</Form.Label>
+            <Form.Label>Transaction / Bank Name</Form.Label>
             <Form.Control
               name="bankName"
               value={form.bankName}
@@ -155,19 +181,39 @@ const AddBank = () => {
             />
           </Form.Group>
 
-          <Form.Group className="mb-2">
-            <Form.Label>Account Number</Form.Label>
-            <Form.Control
-              name="accountNumber"
-              value={form.accountNumber}
+          {/* Checkbox */}
+          <Form.Group className="mb-3">
+            <Form.Check
+              type="checkbox"
+              label="Is this a Bank?"
+              name="isBank"
+              checked={form.isBank}
               onChange={handleChange}
             />
           </Form.Group>
 
-          <Form.Group>
-            <Form.Label>IFSC</Form.Label>
-            <Form.Control name="ifsc" value={form.ifsc} onChange={handleChange} />
-          </Form.Group>
+          {/* Conditional Fields */}
+          {form.isBank && (
+            <>
+              <Form.Group className="mb-2">
+                <Form.Label>Account Number</Form.Label>
+                <Form.Control
+                  name="accountNumber"
+                  value={form.accountNumber}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+
+              <Form.Group>
+                <Form.Label>IFSC</Form.Label>
+                <Form.Control
+                  name="ifsc"
+                  value={form.ifsc}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </>
+          )}
         </Modal.Body>
 
         <Modal.Footer>

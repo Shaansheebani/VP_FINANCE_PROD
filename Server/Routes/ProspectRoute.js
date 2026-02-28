@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ProspectCtrl = require("../Controller/ProspectCtrl");
-const upload = require("../config/upload");
+const { upload } = require("../config/upload");
 
 // ========== GET ROUTES ==========
 router.get("/all", ProspectCtrl.getAllProspects); // Get all prospects

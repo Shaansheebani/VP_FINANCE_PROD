@@ -3,7 +3,7 @@ const router = express.Router();
 const {
   registerAccountant,
   loginAccountant,
-} = require("../Controller/accountantController");
+} = require("../Controller/AccountantController");
 
 router.post("/register", registerAccountant);
 router.post("/login", loginAccountant);

@@ -172,7 +172,7 @@ const MarketingLife = () => {
               <p className="text-sm mb-2">
                 Current file:
                 <a
-                  href={`${BASE_URL}/${existingFile}`}
+                  href={existingFile}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 ml-1"
@@ -181,7 +181,6 @@ const MarketingLife = () => {
                 </a>
               </p>
             )}
-
             <input
               type="file"
               name="file"
@@ -230,12 +229,7 @@ const MarketingLife = () => {
                 <td className="border px-2 py-1">{f.formType}</td>
                 <td className="border px-2 py-1">{f.formName}</td>
                 <td className="border px-2 py-1 text-center">
-                  <a
-                    href={`${BASE_URL}/forms/${f.file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600"
-                  >
+                  <a href={f.file} target="_blank" rel="noopener noreferrer">
                     View
                   </a>
                 </td>

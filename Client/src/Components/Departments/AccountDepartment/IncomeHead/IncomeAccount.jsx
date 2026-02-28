@@ -109,7 +109,7 @@ const IncomeAccount = () => {
     try {
       await dispatch(deleteIncomeExpenseAccountPermanent(id)).unwrap();
     } catch (err) {
-      alert("Permanent delete failed");
+      alert(err?.message || err || "Permanent delete failed");
     }
   };
 

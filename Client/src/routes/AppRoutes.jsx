@@ -86,7 +86,6 @@ import OEDashboard from "../Components/OEDashboard/OEDashboard";
 import AccountantLayout from "../Components/Departments/AccountantDashboard/AccountantLayout"
 import AccountantDashboard from "../Components/Departments/AccountantDashboard/AccountantDashboard";
 import FormCompanyMaster from "../Components/Departments/Masters/FormCompanyMaster";
-import FinancialProductMaster from "../Components/Departments/Masters/FinancialProductMaster";
 import AddBank from "../Components/Departments/Masters/AddBank";
 // marketing
 import MarketingLife from "../Components/Departments/MarketingDepartment/MarketingLife";
@@ -102,7 +101,6 @@ import ServicingMutual from "../Components/Departments/ServicingDepartment/Servi
 //account department
 import IncomeHead from "../Components/Departments/AccountDepartment/IncomeHead/IncomeHead"
 import ExpensesHead from "../Components/Departments/AccountDepartment/ExpensesHead/ExpensesHead"
-import BalanceReports from "../Components/Reports/FinancialReports/BalanceReport"
 import Reports from "../Components/Departments/AccountantDashboard/Reports"
 // Import new HR Dashboard modules
 import HRDashboardHome from "../Components/HRDashboard/HRDashboardHome";
@@ -221,6 +219,7 @@ const AppRoutes = () => {
         <Route path="expenses-head" element={<ExpensesHead />} />
         <Route path="reports" element={<Reports />} />
         <Route path="office-purchase" element={<OfficePurchase />} />
+        <Route path="banks" element={<AddBank />} />
       </Route>
 
       {/* 🏢 OA (Office Admin) - Only OA can access Layout & all other routes */}
@@ -308,8 +307,7 @@ const AppRoutes = () => {
         <Route path="/CRE" element={<CREDashboard />} />
         {/* departments */}
         <Route path="/department-company" element={<FormCompanyMaster />} />
-        <Route path="/department-financial" element={<FinancialProductMaster />} />
-        <Route path="/banks" element={<AddBank />} />
+        
         {/* accounts department */}
         <Route path="/income-head" element={<IncomeHead />} />
         <Route path="/expenses-head" element={<ExpensesHead />} />

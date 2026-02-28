@@ -42,34 +42,60 @@
 
 // module.exports = upload;
 
-const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("cloudinary").v2;
-const path = require("path");
+// const multer = require("multer");
+// const { CloudinaryStorage } = require("multer-storage-cloudinary");
+// const cloudinary = require("cloudinary").v2;
+// const path = require("path");
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
+
+// const storage = new CloudinaryStorage({
+//   cloudinary,
+//   params: async (req, file) => {
+//     const unique =
+//       Date.now() + "-" + Math.round(Math.random() * 1e9);
+
+//     return {
+//       folder: "images",
+//       resource_type: "image",
+//       public_id: unique,
+//       format: path.extname(file.originalname).replace(".", ""),
+//     };
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// module.exports = upload;
+
+const createUpload = require("./uploadFactory");
+
+/* Client documents upload */
+const upload = createUpload({
+  folder: "client-documents",
+  resourceType: "raw",
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    const unique =
-      Date.now() + "-" + Math.round(Math.random() * 1e9);
-
-    return {
-      folder: "images",
-      resource_type: "image",
-      public_id: unique,
-      format: path.extname(file.originalname).replace(".", ""),
-    };
-  },
+/* Expense bill upload */
+const expenseBillUpload = createUpload({
+  folder: "expense-bills",
+  resourceType: "auto",
+  allowedMime: [
+    "application/pdf",
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+  ],
 });
 
-const upload = multer({ storage });
-
-module.exports = upload;
+module.exports = {
+  upload,
+  expenseBillUpload,
+};
 
 

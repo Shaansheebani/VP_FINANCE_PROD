@@ -34,7 +34,11 @@ const IncomeExpenseSchema = new mongoose.Schema(
     },
 
     description: String,
-    referenceNo: String,
+
+    bill: {
+      type: String, // file path
+      default: null,
+    },
 
     isActive: {
       type: Boolean,

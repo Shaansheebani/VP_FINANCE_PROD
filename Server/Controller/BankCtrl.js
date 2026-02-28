@@ -1,26 +1,25 @@
 const Bank = require("../Models/BankModel");
+const IncomeExpense = require("../Models/IncomeExpenseModel");
+
 
 /* ================= CREATE BANK ================= */
 exports.createBank = async (req, res) => {
   try {
     const { bankName, accountNumber, ifsc } = req.body;
 
-    if (!bankName || !accountNumber || !ifsc) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!bankName) {
+      return res.status(400).json({ message: "Mode of Transaction is required" });
     }
 
-    const existing = await Bank.findOne({ accountNumber });
-    if (existing) {
-      return res.status(400).json({ message: "Account already exists" });
-    }
 
     const bank = await Bank.create({
       bankName,
-      accountNumber,
-      ifsc,
+      accountNumber: accountNumber || null,
+      ifsc: ifsc || null,
     });
 
     res.status(201).json(bank);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -42,7 +41,7 @@ exports.getBankById = async (req, res) => {
     const bank = await Bank.findById(req.params.id);
 
     if (!bank) {
-      return res.status(404).json({ message: "Bank not found" });
+      return res.status(404).json({ message: "not found" });
     }
 
     res.json(bank);
@@ -57,7 +56,7 @@ exports.updateBank = async (req, res) => {
     const bank = await Bank.findById(req.params.id);
 
     if (!bank) {
-      return res.status(404).json({ message: "Bank not found" });
+      return res.status(404).json({ message: "not found" });
     }
 
     const { bankName, accountNumber, ifsc, isActive } = req.body;
@@ -85,13 +84,25 @@ exports.updateBank = async (req, res) => {
 /* ================= DELETE BANK (HARD DELETE) ================= */
 exports.deleteBank = async (req, res) => {
   try {
-    const bank = await Bank.findByIdAndDelete(req.params.id);
+    const bankId = req.params.id;
+
+    // ✅ Check if bank is used in IncomeExpense
+    const isUsed = await IncomeExpense.findOne({ bankRef: bankId });
+
+    if (isUsed) {
+      return res.status(400).json({
+        message: "Bank is in use and cannot be deleted",
+      });
+    }
+
+    const bank = await Bank.findByIdAndDelete(bankId);
 
     if (!bank) {
       return res.status(404).json({ message: "Bank not found" });
     }
 
     res.json({ message: "Bank deleted successfully" });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

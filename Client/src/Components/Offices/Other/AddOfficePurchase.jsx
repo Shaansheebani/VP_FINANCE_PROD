@@ -1,45 +1,69 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Row, Col, Card } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   createOfficePurchase,
   fetchOfficePurchaseByID,
   updateOfficePurchase,
 } from "../../../redux/feature/OfficePurchase/PurchaseThunx";
-import { clearCurrent } from "../../../redux/feature/OfficePurchase/PurchaseSlice";
-// import {
-//   createOfficePurchase,
-//   fetchOfficePurchaseByID,
-//   updateOfficePurchase,
-// } from "../../redux/features/officePurchase/officePurchaseThunks";
-// import { clearCurrent } from "../../redux/features/officePurchase/officePurchaseSlice";
+
+import { clearCurrent } from
+  "../../../redux/feature/OfficePurchase/PurchaseSlice";
+
+import { fetchBanks } from
+  "../../../redux/feature/BankRedux/BankThunx";
+
+import { fetchIncomeExpenseDropdown } from
+  "../../../redux/feature/IncomeExpense/incomeExpenseAccountThunk";
 
 function AddOfficePurchase({ setActiveTab, editId, setEditId }) {
   const dispatch = useDispatch();
-  const { current, loading } = useSelector((state) => state.officePurchase);
+
+  const { current, loading } = useSelector(
+    (state) => state.officePurchase
+  );
+
+  const { banks } = useSelector((state) => state.bank);
+
+  const { dropdownAccounts } = useSelector(
+    (state) => state.incomeExpenseAccount
+  );
 
   const [formData, setFormData] = useState({
     vrNo: "",
     invoiceNo: "",
-    date: "",
-    headOfACs: "",
+    transactionDate: "",
+    accountRef: "",
+    bankRef: "",
     itemParticulars: "",
-    firmName: "",
     ratePerUnit: "",
     quantity: "",
-    amount: "",
   });
 
-  // Fetch and populate form for editing
+  /* Load dropdowns */
+  useEffect(() => {
+    dispatch(fetchBanks());
+    dispatch(fetchIncomeExpenseDropdown("expense"));
+  }, [dispatch]);
+
+  /* Load edit data */
   useEffect(() => {
     if (editId) dispatch(fetchOfficePurchaseByID(editId));
   }, [dispatch, editId]);
 
+  /* Populate edit mode */
   useEffect(() => {
     if (current && editId) {
       setFormData({
-        ...current,
-        date: current.date?.substring(0, 10),
+        vrNo: current.vrNo || "",
+        invoiceNo: current.invoiceNo || "",
+        transactionDate:
+          current.transactionDate?.substring(0, 10) || "",
+        accountRef: current.accountRef?._id || "",
+        bankRef: current.bankRef?._id || "",
+        itemParticulars: current.itemParticulars || "",
+        ratePerUnit: current.ratePerUnit || "",
+        quantity: current.quantity || "",
       });
     }
   }, [current, editId]);
@@ -47,15 +71,15 @@ function AddOfficePurchase({ setActiveTab, editId, setEditId }) {
   const calculateAmount = () => {
     const rate = parseFloat(formData.ratePerUnit);
     const qty = parseFloat(formData.quantity);
-    return !isNaN(rate) && !isNaN(qty) ? (rate * qty).toFixed(2) : "";
+    return !isNaN(rate) && !isNaN(qty) ? rate * qty : "";
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const payload = {
       ...formData,
       amount: calculateAmount(),
@@ -73,69 +97,195 @@ function AddOfficePurchase({ setActiveTab, editId, setEditId }) {
       dispatch(clearCurrent());
       setEditId(null);
       setActiveTab("view");
-    } catch (err) {
-      console.error("Failed to save office purchase:", err);
-    }
 
-    setFormData({
-      vrNo: "",
-      invoiceNo: "",
-      date: "",
-      headOfACs: "",
-      itemParticulars: "",
-      firmName: "",
-      ratePerUnit: "",
-      quantity: "",
-      amount: "",
-    });
+      setFormData({
+        vrNo: "",
+        invoiceNo: "",
+        transactionDate: "",
+        accountRef: "",
+        bankRef: "",
+        itemParticulars: "",
+        ratePerUnit: "",
+        quantity: "",
+      });
+
+    } catch (err) {
+      console.error("Save failed:", err);
+    }
   };
 
   return (
-    <Card className="p-3 mt-3">
-      <Form onSubmit={handleSubmit}>
-        <Row>
-          {[
-            { label: "Vr No.", name: "vrNo" },
-            { label: "Invoice No.", name: "invoiceNo" },
-            { label: "Date", name: "date", type: "date" },
-            { label: "Head of A/Cs", name: "headOfACs" },
-            { label: "Item Particulars", name: "itemParticulars" },
-            { label: "Name of Firm or Company", name: "firmName" },
-            { label: "Rates per Unit", name: "ratePerUnit", type: "number" },
-            { label: "Quantity", name: "quantity", type: "number" },
-          ].map(({ label, name, type = "text" }, idx) => (
-            <Col md={idx > 4 ? 3 : 4} key={name}>
-              <Form.Group controlId={name}>
-                <Form.Label>{label}</Form.Label>
-                <Form.Control
-                  type={type}
-                  name={name}
-                  value={formData[name]}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
-            </Col>
-          ))}
+    <div className="bg-white shadow-xl rounded-2xl p-6 mt-6">
+      <h2 className="text-xl font-semibold mb-6 text-gray-700">
+        {editId ? "Update Office Purchase" : "Add Office Purchase"}
+      </h2>
 
-          <Col md={4}>
-            <Form.Group controlId="amount">
-              <Form.Label>Amount</Form.Label>
-              <Form.Control type="number" value={calculateAmount()} readOnly />
-            </Form.Group>
-          </Col>
-        </Row>
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <Button
-          className="mt-3"
+          {/* Vr No */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Vr No.
+            </label>
+            <input
+              type="text"
+              name="vrNo"
+              value={formData.vrNo}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* Invoice No */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Invoice No.
+            </label>
+            <input
+              type="text"
+              name="invoiceNo"
+              value={formData.invoiceNo}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Date
+            </label>
+            <input
+              type="date"
+              name="transactionDate"
+              value={formData.transactionDate}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* Account Head */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Account Head
+            </label>
+            <select
+              name="accountRef"
+              value={formData.accountRef}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="">Select Head</option>
+              {dropdownAccounts
+                ?.filter((item) => item.type === "expense")
+                .map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {(item.headRef?.name || item.headCustom) +
+                      (item.subHeadRef || item.subHeadCustom
+                        ? " - " +
+                          (item.subHeadRef?.companyName ||
+                            item.subHeadCustom)
+                        : "")}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {/* Bank */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Type of Payment
+            </label>
+            <select
+              name="bankRef"
+              value={formData.bankRef}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="">Select Type of Payment</option>
+              {banks?.map((bank) => (
+                <option key={bank._id} value={bank._id}>
+                  {bank.bankName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Item */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Item Particulars
+            </label>
+            <input
+              type="text"
+              name="itemParticulars"
+              value={formData.itemParticulars}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* Rate */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Rate Per Unit
+            </label>
+            <input
+              type="number"
+              name="ratePerUnit"
+              value={formData.ratePerUnit}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* Quantity */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Quantity
+            </label>
+            <input
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* Amount */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Amount
+            </label>
+            <input
+              type="number"
+              value={calculateAmount()}
+              readOnly
+              className="w-full border rounded-lg px-3 py-2 bg-gray-100"
+            />
+          </div>
+
+        </div>
+
+        <button
           type="submit"
-          variant="primary"
           disabled={loading}
+          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-xl shadow-md transition duration-200 disabled:opacity-50"
         >
           {editId ? "Update" : "Save"}
-        </Button>
-      </Form>
-    </Card>
+        </button>
+      </form>
+    </div>
   );
 }
 

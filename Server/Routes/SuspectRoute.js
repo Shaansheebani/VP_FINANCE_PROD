@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const SuspectCtrl = require("../Controller/SuspectCtrl");
-const upload = require("../config/upload");
+const { upload } = require("../config/upload");
 
 // Create Suspect
 router.post("/create", SuspectCtrl.createSuspect);

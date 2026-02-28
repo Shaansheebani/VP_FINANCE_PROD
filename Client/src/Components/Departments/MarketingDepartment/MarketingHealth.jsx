@@ -167,12 +167,11 @@ const MarketingHealth = () => {
               onChange={handleChange}
               className="w-full border px-2 py-1 rounded mb-3"
             />
-
             {existingFile && (
               <p className="text-sm mb-2">
                 Current file:
                 <a
-                  href={`${BASE_URL}/uploads/${existingFile}`}
+                  href={existingFile}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 ml-1"
@@ -181,7 +180,6 @@ const MarketingHealth = () => {
                 </a>
               </p>
             )}
-
             <input
               type="file"
               name="file"
@@ -231,7 +229,7 @@ const MarketingHealth = () => {
                 <td className="border px-2 py-1">{f.formName}</td>
                 <td className="border px-2 py-1 text-center">
                   <a
-                    href={`${BASE_URL}/forms/${f.file}`}
+                    href={f.file}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600"

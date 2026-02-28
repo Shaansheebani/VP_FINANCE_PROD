@@ -9,6 +9,7 @@ import {
   FiChevronDown,
   FiLogOut,
 } from "react-icons/fi";
+import { Landmark } from "lucide-react";
 
 const AccountantLayout = () => {
 
@@ -52,6 +53,10 @@ const AccountantLayout = () => {
           <div className="flex items-center">
             <button onClick={() => navigate("/accountant/dashboard")} className={navBtn}>
               <FiGrid /> Dashboard
+            </button>
+
+            <button onClick={() => navigate("/accountant/banks")} className={navBtn +"flex"}>
+              <Landmark /> Transaction Master
             </button>
 
             <button onClick={() => navigate("/accountant/income-head")} className={navBtn}>

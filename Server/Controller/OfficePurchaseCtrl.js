@@ -1,61 +1,165 @@
+const mongoose = require("mongoose");
 const OfficePurchase = require("../Models/OfficePurchaseModel");
+const IncomeExpense = require("../Models/IncomeExpenseModel");
 
-// Create
+// CREATE
 exports.createOfficePurchase = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const newPurchase = new OfficePurchase(req.body);
-    const savedPurchase = await newPurchase.save();
-    res.status(201).json(savedPurchase);
+    const {
+      vrNo,
+      invoiceNo,
+      transactionDate,
+      accountRef,
+      bankRef,
+      itemParticulars,
+      ratePerUnit,
+      quantity,
+      amount,
+    } = req.body;
+
+    const [incomeExpense] = await IncomeExpense.create(
+      [{
+        type: "expense",
+        accountRef,
+        bankRef,
+        amount,
+        transactionDate,
+        description: `VR No: ${vrNo} | Invoice: ${invoiceNo} | Item: ${itemParticulars}`,
+      }],
+      { session }
+    );
+
+    const [officePurchase] = await OfficePurchase.create(
+      [{
+        vrNo,
+        invoiceNo,
+        transactionDate,
+        accountRef,
+        bankRef,
+        itemParticulars,
+        ratePerUnit,
+        quantity,
+        amount,
+        incomeExpenseRef: incomeExpense._id,
+      }],
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(201).json(officePurchase);
+
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Read all
-exports.getAllOfficePurchases = async (req, res) => {
+
+// GET ALL
+exports.getOfficePurchases = async (req, res) => {
   try {
-    const purchases = await OfficePurchase.find().sort({ createdAt: -1 });
-    res.json(purchases);
+    const data = await OfficePurchase.find()
+      .populate("accountRef")
+      .populate("bankRef")
+      .sort({ transactionDate: -1 });
+
+    res.json(data);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Read one
-exports.getOfficePurchaseById = async (req, res) => {
+
+// GET BY ID
+exports.getOfficePurchaseByID = async (req, res) => {
   try {
-    const purchase = await OfficePurchase.findById(req.params.id);
-    if (!purchase) return res.status(404).json({ message: "Not found" });
-    res.json(purchase);
+    const data = await OfficePurchase.findById(req.params.id)
+      .populate("accountRef")
+      .populate("bankRef");
+
+    if (!data) return res.status(404).json({ message: "Not found" });
+
+    res.json(data);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update
+
+// UPDATE
 exports.updateOfficePurchase = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const updatedPurchase = await OfficePurchase.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const officePurchase = await OfficePurchase.findById(id).session(session);
+    if (!officePurchase) throw new Error("Not found");
+
+    Object.assign(officePurchase, updateData);
+    await officePurchase.save({ session });
+
+    await IncomeExpense.findByIdAndUpdate(
+      officePurchase.incomeExpenseRef,
+      {
+        accountRef: officePurchase.accountRef,
+        bankRef: officePurchase.bankRef,
+        amount: officePurchase.amount,
+        transactionDate: officePurchase.transactionDate,
+        description: `VR No: ${officePurchase.vrNo} | Invoice: ${officePurchase.invoiceNo} | Item: ${officePurchase.itemParticulars}`,
+      },
+      { session }
     );
-    if (!updatedPurchase) return res.status(404).json({ message: "Not found" });
-    res.json(updatedPurchase);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.json(officePurchase);
+
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Delete
+
+// DELETE (Permanent)
 exports.deleteOfficePurchase = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const deletedPurchase = await OfficePurchase.findByIdAndDelete(
-      req.params.id
+    const { id } = req.params;
+
+    const officePurchase = await OfficePurchase.findById(id).session(session);
+    if (!officePurchase) throw new Error("Not found");
+
+    await IncomeExpense.findByIdAndDelete(
+      officePurchase.incomeExpenseRef,
+      { session }
     );
-    if (!deletedPurchase) return res.status(404).json({ message: "Not found" });
+
+    await OfficePurchase.findByIdAndDelete(id, { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
     res.json({ message: "Deleted successfully" });
+
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({ message: error.message });
   }
 };

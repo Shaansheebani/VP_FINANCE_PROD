@@ -24,15 +24,13 @@ const createServicingForm = async (req, res) => {
       formType,
       companyName,
       kindOfForm,
-      file: req.file.filename,
+      file: req.file.path,
     });
 
     res.status(201).json({
       success: true,
-      form: {
-        ...form.toObject(),
-        fileUrl: `/forms/${form.file}`,
-      },
+      message: "Servicing form created successfully",
+      form,
     });
   } catch (err) {
     res.status(500).json({
@@ -47,13 +45,17 @@ module.exports = { createServicingForm };
 
 const getServicingForms = async (req, res) => {
   try {
-    const forms = await ServicingForms.find().sort({
-      createdAt: -1,
-    });
+    const forms = await ServicingForms.find().sort({ createdAt: -1 });
 
-    res.json({ success: true, forms });
+    return res.status(200).json({
+      success: true,
+      forms
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
 
